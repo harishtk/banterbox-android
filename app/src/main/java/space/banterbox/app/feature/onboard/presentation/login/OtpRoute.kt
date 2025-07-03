@@ -511,7 +511,7 @@ private fun setupOtpReceiver(
 //@DevicePreviews
 @Composable
 private fun OtpScreenPreview() {
-    BoxWithConstraints {
+    Box {
         BanterboxTheme {
             ShopsBackground {
                 OtpScreen()

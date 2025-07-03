@@ -773,12 +773,12 @@ private fun ColumnScope.AppBrand(
             Icon(
                 modifier = Modifier.fillMaxSize(1F),
                 painter = painterResource(id = ShopsSellerIcons.Id_BrandFilled),
-                contentDescription = "Shops Seller App",
+                contentDescription = "Banterbox Space",
             )
         }
     }
     Text(
-        text = "Shops Seller App", style = MaterialTheme.typography.titleLarge
+        text = "Banterbox Space", style = MaterialTheme.typography.titleLarge
             .copy(fontWeight = FontWeight.W700)
     )
 }
@@ -853,7 +853,7 @@ private fun LegalLayout(
 @DevicePreviews
 @Composable
 private fun LoginScreenPreview() {
-    BoxWithConstraints {
+    Box {
         BanterboxTheme {
             ShopsBackground {
                 LoginScreen()

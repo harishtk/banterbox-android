@@ -4,8 +4,6 @@ import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -252,53 +250,6 @@ fun BanterboxTheme(
         typography = Typography,
         content = content
     )*/
-}
-
-@Immutable
-object DefaultRippleTheme : RippleTheme {
-
-    @Composable override fun defaultColor(): Color =
-        RippleTheme.defaultRippleColor(
-            contentColor = Color.Green,
-            lightTheme = true
-        )
-
-    @Composable override fun rippleAlpha(): RippleAlpha =
-        RippleTheme.defaultRippleAlpha(
-            contentColor = Color.Black,
-            lightTheme = true
-        )
-}
-
-@Immutable
-object RedRippleTheme : RippleTheme {
-
-    @Composable override fun defaultColor(): Color =
-        RippleTheme.defaultRippleColor(
-            contentColor = MaterialColor.RedA100,
-            lightTheme = true
-        )
-
-    @Composable override fun rippleAlpha(): RippleAlpha =
-        RippleTheme.defaultRippleAlpha(
-            contentColor = Color.Black,
-            lightTheme = true
-        )
-}
-
-@Immutable
-object GrayRippleTheme : RippleTheme {
-    @Composable override fun defaultColor(): Color =
-        RippleTheme.defaultRippleColor(
-            contentColor = Color.Gray,
-            lightTheme = true
-        )
-
-    @Composable override fun rippleAlpha(): RippleAlpha =
-        RippleTheme.defaultRippleAlpha(
-            contentColor = Color.Black,
-            lightTheme = true
-        )
 }
 
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)

@@ -2,9 +2,9 @@ package space.banterbox.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import space.banterbox.app.ui.insetNone
@@ -51,7 +51,7 @@ fun WithLifecycle(
     state: Lifecycle.State = Lifecycle.State.STARTED,
     block: suspend CoroutineScope.() -> Unit
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     LaunchedEffect(key1 = lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(state) {
             block()

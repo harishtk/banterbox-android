@@ -2,19 +2,14 @@ package space.banterbox.app.feature.home.presentation.settings
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -31,8 +26,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +41,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,8 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.pepul.shops.core.analytics.AnalyticsLogger
-import com.pepul.shops.core.analytics.StubAnalyticsLogger
+import kotlinx.coroutines.launch
 import space.banterbox.app.BuildConfig
 import space.banterbox.app.Constant
 import space.banterbox.app.ObserverAsEvents
@@ -80,15 +73,11 @@ import space.banterbox.app.core.designsystem.component.LoadingDialog
 import space.banterbox.app.feature.home.presentation.util.SettingsItem
 import space.banterbox.app.feature.home.presentation.util.SettingsListType
 import space.banterbox.app.showToast
-import space.banterbox.app.ui.insetMedium
 import space.banterbox.app.ui.insetSmall
-import space.banterbox.app.ui.theme.GrayRippleTheme
+import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.MaterialColor
-import space.banterbox.app.ui.theme.RedRippleTheme
 import space.banterbox.app.ui.theme.ShopsDarkGreen
 import space.banterbox.app.ui.theme.ShopsGreen
-import space.banterbox.app.ui.theme.BanterboxTheme
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Immutable
@@ -435,26 +424,28 @@ private fun LogoutConfirmDialog(
                 ) {
                     Row {
                         Spacer(modifier = Modifier.weight(1f))
-                        CompositionLocalProvider(LocalRippleTheme provides GrayRippleTheme) {
-                            TextButton(onClick = { onDismiss() }) {
-                                Text(
-                                    text = "No",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialColor.Grey400
-                                )
-                            }
+                        TextButton(
+                            onClick = { onDismiss() },
+                            interactionSource = remember { MutableInteractionSource() },
+                            colors = ButtonDefaults.textButtonColors(contentColor = Color.DarkGray)
+                        ) {
+                            Text(
+                                text = "No",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialColor.Grey400
+                            )
                         }
 
-                        CompositionLocalProvider(LocalRippleTheme provides RedRippleTheme) {
-                            TextButton(
-                                onClick = { onSuccess() },
-                            ) {
-                                Text(
-                                    text = "Yes",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialColor.Red700
-                                )
-                            }
+                        TextButton(
+                            onClick = { onSuccess() },
+                            interactionSource = remember { MutableInteractionSource() },
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialColor.Red700)
+                        ) {
+                            Text(
+                                text = "Yes",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialColor.Red700
+                            )
                         }
                     }
                 }
@@ -477,7 +468,7 @@ private fun gotoMarket(context: Context) {
 @Preview(group = "screen")
 @Composable
 fun SettingsPreview() {
-    BoxWithConstraints {
+    Box {
         BanterboxTheme {
             SettingsScreen(
                 uiState = SettingsUiState.SettingsList(
@@ -517,7 +508,7 @@ private fun SettingsItemPreview() {
         logoutSettingsItem
     )
 
-    ShopsSellerTheme(darkTheme = false) {
+    BanterboxTheme(darkTheme = false) {
         Column {
             sampleSettingsItems.onEach { item ->
                 SettingsItemRow(settingsItem = item)
@@ -535,7 +526,7 @@ private fun SettingsItemPreview() {
 @Composable
 @Preview(group = "popup", showBackground = true)
 fun LogoutConfirmDialogPreview() {
-    BoxWithConstraints(
+    Box(
         Modifier.background(Color.White)
     ) {
         BanterboxTheme {

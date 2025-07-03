@@ -1,4 +1,4 @@
-package .app.eventbus
+package space.banterbox.app.eventbus
 
 data class NewNotificationEvent(
     val hint: String,
