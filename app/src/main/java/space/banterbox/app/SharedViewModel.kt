@@ -1,0 +1,164 @@
+package space.banterbox.app
+
+import androidx.annotation.IdRes
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import space.banterbox.app.core.designsystem.component.ShopsBottomAppBarVisibilityState
+import space.banterbox.app.core.domain.model.CountryCodeModel
+import space.banterbox.app.core.domain.model.ShopData
+import space.banterbox.app.core.domain.repository.ShopDataRepository
+import space.banterbox.app.core.domain.repository.UserDataRepository
+import space.banterbox.app.core.domain.usecase.UserAuthStateUseCase
+import space.banterbox.app.core.util.NetworkMonitor
+import space.banterbox.app.feature.home.navigation.adminNavigationRoute
+import space.banterbox.app.feature.home.navigation.createNavigationRoute
+import space.banterbox.app.feature.home.navigation.homeNavigationRoute
+import space.banterbox.app.feature.home.navigation.insightsNavigationRoute
+import space.banterbox.app.feature.home.navigation.insightsOverviewNavigationRoute
+import space.banterbox.app.feature.home.navigation.inventoryNavigationRoute
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import timber.log.Timber
+import javax.inject.Inject
+
+/**
+ * TODO: 1. Configure current destination with bottom bar state visibility
+ */
+@HiltViewModel
+class SharedViewModel @Inject constructor(
+    networkMonitor: NetworkMonitor,
+    private val userDataRepository: UserDataRepository,
+    private val shopDataRepository: ShopDataRepository,
+    userAuthStateUseCase: UserAuthStateUseCase,
+) : ViewModel() {
+
+    // Shop data
+    val shopData: StateFlow<ShopData> = shopDataRepository.shopData
+        .onEach {
+            Timber.d("ShopData: $it")
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ShopData.none(),
+        )
+
+    private val _jumpToDestination = MutableSharedFlow<Int?>()
+    val jumpToDestination = _jumpToDestination
+        .filterNotNull()
+        .shareIn(
+            scope = viewModelScope,
+            replay = 0,
+            started = SharingStarted.WhileSubscribed(5_000)
+        )
+
+    fun jumpToPage(@IdRes destinationId: Int?) = viewModelScope.launch {
+        if (currentDestination.value != destinationId) {
+            _jumpToDestination.emit(destinationId)
+        }
+    }
+
+    /* Navigation current destination */
+    val currentDestination: MutableStateFlow<Int> = MutableStateFlow(-1)
+
+    fun setCurrentDestination(destinationId: Int) {
+        currentDestination.update { destinationId }
+    }
+
+    /* Connection Listener */
+    /*val isOffline =
+        combine(
+            networkMonitor.isOnline
+                .map(Boolean::not),
+            currentDestination
+                .map { destinationId ->
+                    destinationId !in noOfflineAlertDestinations
+                },
+            Boolean::and
+        )
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = false
+            )
+
+    val shopsBottomAppBarState = currentDestination
+        .map { destinationId ->
+            val hidden = destinationId !in bottomBarDestinations
+            ShopsBottomAppBarVisibilityState(
+                hidden = hidden
+            )
+        }
+        .distinctUntilChanged()
+        .debounce {
+            if (it.hidden) { 0 } else { 150 }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ShopsBottomAppBarVisibilityState.Default
+        )*/
+
+    /* Volume state handlers */
+    fun setVolumeState(muted: Boolean) {
+        viewModelScope.launch { userDataRepository.updateVideoMuteStatus(muted) }
+    }
+
+    val volumeMutedState = userDataRepository.userData
+        .map { it.isMuted }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    /* Home feeds scroll to top signal */
+    private val _scrollToTopSignal = MutableStateFlow(false)
+    val scrollToTopSignal = _scrollToTopSignal.asStateFlow()
+
+    fun setHomeScrollToTop(scrollToTop: Boolean) {
+        _scrollToTopSignal.update { scrollToTop }
+    }
+
+    private val _bottomBarReSelectSignal = MutableSharedFlow<Int>(replay = 0)
+    /**
+     * Used to get a callback on bottom bar item reselect
+     */
+    val bottomBarReselectSignal = _bottomBarReSelectSignal.asSharedFlow()
+
+    fun setBottomBarReselected(id: Int) {
+        Timber.d("Reselect: sending $id..")
+        viewModelScope.launch { _bottomBarReSelectSignal.emit(id) }
+    }
+}
+
+val bottomBarDestinations: List<String> =
+    listOf(
+        homeNavigationRoute,
+        insightsNavigationRoute,
+        insightsOverviewNavigationRoute,
+        createNavigationRoute,
+        inventoryNavigationRoute,
+        adminNavigationRoute,
+    )
+
+val onboardDestinations: List<Int> = listOf()
+
+val noOfflineAlertDestinations: List<String> = listOf()
