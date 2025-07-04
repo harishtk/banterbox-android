@@ -125,5 +125,6 @@
     <string name="you_are_not_connected_to_the_internet">You are not connected to the internet</string>
     <string name="no_internet_des_1">Uh-oh! It looks like you\'re not connected to the internet right now. Please check your internet connection!</string>
     <string name="unknown_error">Unknown Error</string>
+    <string name="enter_a_valid_username">Enter a valid username</string>
 
 </resources>

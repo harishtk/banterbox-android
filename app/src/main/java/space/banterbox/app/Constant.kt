@@ -27,4 +27,6 @@ object Constant {
     /** Permission **/
     const val PERMISSION_DENIED = "PERMISSION_DENIED"
     const val PERMISSION_PERMANENTLY_DENIED = "PERMISSION_PERMANENTLY_DENIED"
+
+    const val USERNAME_PATTERN = "^[a-z0-9]$"
 }

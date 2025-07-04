@@ -3,7 +3,18 @@ package space.banterbox.app.feature.onboard.presentation.login
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.i18n.phonenumbers.PhoneNumberUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import space.banterbox.app.Constant
 import space.banterbox.app.R
 import space.banterbox.app.common.util.ResolvableException
@@ -12,39 +23,21 @@ import space.banterbox.app.common.util.loadstate.LoadState
 import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
 import space.banterbox.app.core.Noop
-import space.banterbox.app.core.data.repository.DefaultCountryCodeListRepository
-import space.banterbox.app.core.di.AppDependencies
-import space.banterbox.app.core.domain.model.CountryCodeModel
-import space.banterbox.app.core.domain.repository.CountryCodeListRepository
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.net.NoInternetException
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.onboard.domain.model.request.LoginRequest
-import space.banterbox.app.feature.onboard.domain.repository.AccountsRepository
-import space.banterbox.app.feature.onboard.presentation.util.InvalidMobileNumberException
+import space.banterbox.app.feature.onboard.domain.repository.AuthRepository
+import space.banterbox.app.feature.onboard.presentation.util.InvalidUsernameException
+import space.banterbox.app.feature.onboard.presentation.util.LoginException
 import space.banterbox.app.feature.onboard.presentation.util.RecaptchaException
-import space.banterbox.app.ifDebug
-import space.banterbox.app.nullAsEmpty
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val accountsRepository: AccountsRepository,
-    defaultCountryCodeListRepository: CountryCodeListRepository,
+    private val authRepository: AuthRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -57,10 +50,7 @@ class LoginViewModel @Inject constructor(
 
     val accept: (LoginUiAction) -> Unit
 
-    private val typingState = MutableSharedFlow<LoginUiAction.TypingPhone>()
-
-    // Api values
-    private var recaptchaToken: String = ""
+    private val actionStream = MutableSharedFlow<LoginUiAction>()
 
     private var signupJob: Job? = null
 
@@ -70,24 +60,24 @@ class LoginViewModel @Inject constructor(
         val toggleButtonState: Boolean = savedStateHandle[TOGGLE_BUTTON_STATE] ?: false
         viewModelState.update { it.copy(toggleButtonState = toggleButtonState) }
 
-        val typedPhone = savedStateHandle[TYPED_PHONE] ?: ""
-        viewModelState.update { it.copy(typedPhone = typedPhone) }
+        val typedUsername = savedStateHandle[TYPED_USERNAME] ?: ""
+        viewModelState.update { it.copy(typedUsername = typedUsername) }
 
-        typingState
+        actionStream
+            .filterIsInstance<LoginUiAction.TypingUsername>()
             .distinctUntilChanged()
             .onEach { action ->
-                viewModelState.update { it.copy(typedPhone = action.typedPhone) }
+                viewModelState.update { it.copy(typedPassword = action.typedUsername) }
             }
             .launchIn(viewModelScope)
 
-        defaultCountryCodeListRepository.countryCodeModelListStream
-            .onEach { countryCodeModels ->
-                setCountryCodeList(countryCodeModels)
-                setCountryCode(CountryCodeModel.India)
+        actionStream
+            .filterIsInstance<LoginUiAction.TypingPassword>()
+            .distinctUntilChanged()
+            .onEach { action ->
+                viewModelState.update { it.copy(typedPassword = action.typedPassword) }
             }
             .launchIn(viewModelScope)
-
-        ifDebug { setPhoneNumber("6505551235") }
     }
 
     private fun onUiAction(action: LoginUiAction) {
@@ -98,11 +88,9 @@ class LoginViewModel @Inject constructor(
             is LoginUiAction.ToggleConsentButton -> {
                 viewModelState.update { it.copy(toggleButtonState = action.checked) }
             }
-            is LoginUiAction.SetCountryCode -> {
-                setCountryCodeModelInternal(action.countryCodeModel)
-            }
-            is LoginUiAction.TypingPhone -> {
-                viewModelScope.launch { typingState.emit(action) }
+            is LoginUiAction.TypingUsername,
+            is LoginUiAction.TypingPassword -> {
+                viewModelScope.launch { actionStream.emit(action) }
             }
             is LoginUiAction.Validate -> {
                 validateInternal(action.suppressError, action.isDeletedAccountRetrieve)
@@ -111,29 +99,6 @@ class LoginViewModel @Inject constructor(
             LoginUiAction.ResetLoading -> {
                 setLoading(LoadType.ACTION, LoadState.NotLoading.InComplete)
             }
-        }
-    }
-
-    fun getFormattedPhone(): String {
-        val mobile = uiState.value.typedPhone
-        val countryCode = uiState.value.countryCodeModel?.dialcode?.replace(
-            Regex("\\W"),
-            ""
-        )
-        return try {
-            val phoneNumberUtil = PhoneNumberUtil.getInstance()
-            val phoneNumber = phoneNumberUtil.parse(
-                mobile,
-                CountryCodeModel.India.isocode
-            )
-            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
-                phoneNumberUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL)
-            } else {
-                throw IllegalArgumentException("Unable to parse mobile number")
-            }
-        } catch (e: Exception) {
-            ifDebug { Timber.w(e) }
-            "+${countryCode} $mobile"
         }
     }
 
@@ -149,84 +114,38 @@ class LoginViewModel @Inject constructor(
             return
         }*/
 
-        // Phone validation
-        val phoneNumberUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance()
-        try {
-            val phoneNumber = viewModelState.value.typedPhone
-            val isoCode = viewModelState.value.countryCodeModel?.isocode
-            val phoneNumberLength = phoneNumberUtil.parse(phoneNumber, isoCode)
-            if (!phoneNumberUtil.isValidNumber(phoneNumberLength)) {
-                val cause = InvalidMobileNumberException("Enter a valid phone")
-                addError(
-                    t = ResolvableException(cause),
-                    uiText = UiText.StringResource(R.string.enter_a_valid_phone)
-                )
-                return
-            }
-        } catch (e: Exception) {
-            Timber.tag("ERROR").e(e)
-            val cause = InvalidMobileNumberException("Enter a valid phone")
+        // Username validation
+        val username = viewModelState.value.typedUsername
+        if (!username.matches(Regex(Constant.USERNAME_PATTERN))) {
+            val cause = InvalidUsernameException("Enter a valid username")
             addError(
                 t = ResolvableException(cause),
-                uiText = UiText.StringResource(R.string.enter_a_valid_phone)
+                uiText = UiText.StringResource(R.string.enter_a_valid_username)
             )
             return
         }
 
         // toggle button validation
-        /*if (!viewModelState.value.toggleButtonState) {
+        if (!viewModelState.value.toggleButtonState) {
             val cause = IllegalStateException("Consent button is not checked")
             addError(
                 t = ResolvableException(cause),
                 uiText = UiText.StringResource(R.string.read_and_accept_terms)
             )
-            return@launch
-        }*/
+            return
+        }
 
         signInApiInternal()
-        /*if (isDeletedAccountRetrieve) {
-            retrieveDeletedAccountInternal()
-        } else {
-            signInApiInternal()
-        }*/
     }
 
-    fun requestAccountRecoveryOtp(type: String) {
-        requestAccountRecoveryOtpInternal(type)
-    }
-
-    private fun requestAccountRecoveryOtpInternal(type: String) {
-        viewModelState.update { state -> state.copy(accountType = type) }
-        val mobileNumber = viewModelState.value.typedPhone
-        val countryCode = viewModelState.value.countryCodeModel?.dialcode.nullAsEmpty()
+    private fun signInApiInternal() {
+        val username = viewModelState.value.typedUsername
+        val password = viewModelState.value.typedPassword
 
         val request = LoginRequest(
-            phoneNumber = mobileNumber,
-            countryCode = countryCode.replace("+", ""),
-            guestUserId = 0,
-            callFor = CALL_FOR_SEND_OTP,
-            platform = Constant.PLATFORM,
-            fcm = AppDependencies.persistentStore?.fcmToken.nullAsEmpty(),
-            type = type
+            username = username,
+            password = password
         )
-
-        login(request)
-    }
-
-    private fun signInApiInternal(recaptchaToken: String = "") {
-        val mobileNumber = viewModelState.value.typedPhone
-        val countryCode = viewModelState.value.countryCodeModel?.dialcode.nullAsEmpty()
-
-        val request = LoginRequest(
-            phoneNumber = mobileNumber,
-            countryCode = countryCode.replace("+", ""),
-            guestUserId = 0,
-            callFor = CALL_FOR_SEND_OTP,
-            platform = Constant.PLATFORM,
-            fcm = AppDependencies.persistentStore?.fcmToken.nullAsEmpty(),
-            type = ""
-        )
-
         login(request)
     }
 
@@ -238,91 +157,60 @@ class LoginViewModel @Inject constructor(
         signupJob?.cancel()
         setLoading(LoadType.ACTION, LoadState.Loading())
         signupJob = viewModelScope.launch {
-            accountsRepository.loginUser(request).collectLatest { result ->
-                when (result) {
-                    Result.Loading -> Noop()
-                    is Result.Error -> {
-                        when (result.exception) {
-                            is ApiException -> {
-                                when (result.exception.cause) {
-                                    is RecaptchaException -> {
-                                        addError(
-                                            t = result.exception,
-                                            uiText = UiText.somethingWentWrong
-                                        )
-                                    }
-                                    else -> {
-                                        addError(
-                                            t = result.exception,
-                                            uiText = UiText.somethingWentWrong
-                                        )
-                                    }
+            when (val result = authRepository.login(request)) {
+                Result.Loading -> Noop()
+                is Result.Error -> {
+                    when (result.exception) {
+                        is ApiException -> {
+                            when (result.exception.cause) {
+                                is RecaptchaException -> {
+                                    addError(
+                                        t = result.exception,
+                                        uiText = UiText.somethingWentWrong
+                                    )
+                                }
+
+                                is LoginException -> {
+                                    addError(
+                                        t = result.exception,
+                                        uiText = UiText.DynamicString("Invalid username or password")
+                                    )
+                                }
+                                else -> {
+                                    addError(
+                                        t = result.exception,
+                                        uiText = UiText.somethingWentWrong
+                                    )
                                 }
                             }
-                            is NoInternetException -> {
-                                addError(
-                                    t = result.exception,
-                                    uiText = UiText.noInternet
-                                )
-                            }
                         }
-                        setLoading(LoadType.ACTION, LoadState.Error(result.exception))
-                    }
-                    is Result.Success -> {
-                        setLoading(LoadType.ACTION, LoadState.NotLoading.Complete)
-                        viewModelState.update { state ->
-                            state.copy(
-                                isOtpSent = true
+                        is NoInternetException -> {
+                            addError(
+                                t = result.exception,
+                                uiText = UiText.noInternet
                             )
                         }
+                    }
+                    setLoading(LoadType.ACTION, LoadState.Error(result.exception))
+                }
+                is Result.Success -> {
+                    setLoading(LoadType.ACTION, LoadState.NotLoading.Complete)
+                    viewModelState.update { state ->
+                        state.copy(
+                            isLoginSuccessful = true
+                        )
                     }
                 }
             }
         }
     }
 
-    /**
-     * This function exposed the updating of [LoginViewModel.recaptchaToken]
-     */
-    fun setRecaptchaToken(recaptchaToken: String) {
-        this.recaptchaToken = recaptchaToken
-
-        // TODO: (deferred) login - sign in with the recaptcha token.
-        // signInApiInternal(recaptchaToken)
-    }
-
-    /**
-     * This function exposes the updating of [LoginViewModelState.countryCodeList]
-     */
-    private fun setCountryCodeList(newCountryCodeList: List<CountryCodeModel>) {
-        viewModelState.update { it.copy(countryCodeList = newCountryCodeList) }
-    }
-
-    /**
-     * This function exposes the updating of [LoginViewModelState.countryCodeModel]
-     */
-    private fun setCountryCode(newCountryCode: CountryCodeModel) {
-        setCountryCodeModelInternal(newCountryCode)
-        Timber.d("setCountryCode() called with: newCountryCode = [$newCountryCode]")
-    }
-
-    /**
-     * This function exposes the updating of [LoginViewModelState.typedPhone]
-     */
-    fun setPhoneNumber(phone: String) {
-        viewModelState.update { it.copy(typedPhone = phone) }
-    }
-
     fun resetOtpSent() {
-        viewModelState.update { it.copy(isOtpSent = false) }
+        viewModelState.update { it.copy(isLoginSuccessful = false) }
     }
 
     fun handleBackPressed(): Boolean {
         return false
-    }
-
-    private fun setCountryCodeModelInternal(countryCodeModel: CountryCodeModel) {
-        viewModelState.update { it.copy(countryCodeModel = countryCodeModel) }
     }
 
     private fun setLoading(
@@ -373,11 +261,12 @@ class LoginViewModel @Inject constructor(
     }
 
 }
+
 interface LoginUiAction {
     data class ToggleConsentButton(val checked: Boolean) : LoginUiAction
     data class ErrorShown(val id: Long) : LoginUiAction
-    data class SetCountryCode(val countryCodeModel: CountryCodeModel) : LoginUiAction
-    data class TypingPhone(val typedPhone: String) : LoginUiAction
+    data class TypingUsername(val typedUsername: String) : LoginUiAction
+    data class TypingPassword(val typedPassword: String) : LoginUiAction
     data class Validate(val suppressError: Boolean, val isDeletedAccountRetrieve: Boolean) : LoginUiAction
     data object ResetLoading : LoginUiAction
 }
@@ -390,25 +279,18 @@ interface LoginUiEvent {
 data class LoginViewModelState(
     val loadState: LoadStates = LoadStates.IDLE,
     val toggleButtonState: Boolean = false,
-    val typedPhone: String = "",
-    val countryCodeModel: CountryCodeModel = CountryCodeModel.India,
-    val countryCodeList: List<CountryCodeModel> = emptyList(),
-    /**
-     * A type to support deleted account recovery.
-     */
-    val accountType: String = "",
+    val typedUsername: String = "",
+    val typedPassword: String = "",
 
     /**
-     * Flag to indicate that the send otp attempt is successful.
+     * Flag to indicate that the login attempt is successful.
      */
-    val isOtpSent: Boolean = false,
+    val isLoginSuccessful: Boolean = false,
+
     val exception: Throwable? = null,
     val uiErrorMessage: UiText? = null,
     val errors: List<ErrorMessage> = emptyList(),
 )
 
-internal const val CALL_FOR_SEND_OTP = "sendOtp"
-internal const val CALL_FOR_VERIFY_OTP = "verifyOtp"
-
 private const val TOGGLE_BUTTON_STATE = "toggle_button_state"
-private const val TYPED_PHONE = "typed_phone"
+private const val TYPED_USERNAME = "typed_username"

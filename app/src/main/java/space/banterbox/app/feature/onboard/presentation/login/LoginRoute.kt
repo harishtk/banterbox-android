@@ -5,8 +5,6 @@ package space.banterbox.app.feature.onboard.presentation.login
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
@@ -16,7 +14,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -38,18 +35,25 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalAbsoluteTonalElevation
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -70,23 +74,33 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -105,9 +119,7 @@ import space.banterbox.app.core.designsystem.component.LoadingButtonState
 import space.banterbox.app.core.designsystem.component.LoadingState
 import space.banterbox.app.core.designsystem.component.ShopsBackground
 import space.banterbox.app.core.designsystem.component.animation.circularReveal
-import space.banterbox.app.core.designsystem.component.text.CountryCodeState
 import space.banterbox.app.core.designsystem.component.text.PhoneNumberState
-import space.banterbox.app.core.designsystem.component.text.PhoneNumberStateSaver
 import space.banterbox.app.core.designsystem.component.text.TextFieldState
 import space.banterbox.app.core.designsystem.supportFoldables
 import space.banterbox.app.core.domain.model.CountryCodeModel
@@ -116,8 +128,6 @@ import space.banterbox.app.core.net.NoInternetException
 import space.banterbox.app.feature.onboard.OnboardSharedViewModel
 import space.banterbox.app.feature.onboard.presentation.boarding.TextFieldError
 import space.banterbox.app.feature.onboard.presentation.util.AccountUnavailableException
-import space.banterbox.app.feature.onboard.presentation.util.InvalidMobileNumberException
-import space.banterbox.app.feature.onboard.presentation.util.OtpLimitReachedException
 import space.banterbox.app.feature.onboard.presentation.util.RecaptchaException
 import space.banterbox.app.getEmoji
 import space.banterbox.app.nullAsEmpty
@@ -131,6 +141,15 @@ import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import space.banterbox.app.core.designsystem.component.text.PasswordFieldState
+import space.banterbox.app.core.designsystem.component.text.UsernameFieldState
+import space.banterbox.app.core.designsystem.component.text.UsernameFieldStateSaver
+import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberState
+import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberStateSaver
+import space.banterbox.app.feature.onboard.presentation.util.LoginException
+import space.banterbox.app.ui.cornerSizeMedium
+import space.banterbox.app.ui.theme.LightGray100
+import space.banterbox.app.ui.theme.LightGray200
 import timber.log.Timber
 
 /**
@@ -153,19 +172,19 @@ internal fun LoginRoute(
 
     val legalErrorText = stringResource(id = R.string.read_and_accept_terms)
 
-    val countryCodeState by remember {
-        mutableStateOf(CountryCodeState(uiState.countryCodeModel.isocode))
+    val usernameState by rememberSaveable(stateSaver = UsernameFieldStateSaver) {
+        mutableStateOf(UsernameFieldState(uiState.typedUsername))
     }
-    countryCodeState.text = uiState.countryCodeModel.isocode
-    val phoneNumberState by rememberSaveable(stateSaver = PhoneNumberStateSaver) {
-        mutableStateOf(PhoneNumberState(countryCodeState, uiState.typedPhone))
+    val passwordState by remember {
+        mutableStateOf(PasswordFieldState())
     }
 
     LoginScreen(
         modifier = modifier,
         uiState = uiState,
         uiAction = uiAction,
-        phoneNumberState = phoneNumberState,
+        usernameState = usernameState,
+        passwordState = passwordState,
         onOpenWebPage = onOpenWebPage,
         snackbarHostState = snackbarHostState,
         onValidate = {
@@ -173,13 +192,9 @@ internal fun LoginRoute(
                 scope.launch {
                     snackbarHostState.showSnackbar(legalErrorText)
                 }
-                phoneNumberState.enableShowErrors()
-            } else if (!PhoneNumberState.isValidPhone(
-                    phoneNumberState.text,
-                    uiState.countryCodeModel.isocode
-                )
-            ) {
-                phoneNumberState.enableShowErrors()
+                // phoneNumberState.enableShowErrors()
+            } else if (!usernameState.isValid) {
+                usernameState.enableShowErrors()
             } else {
                 uiAction(
                     LoginUiAction.Validate(
@@ -191,23 +206,23 @@ internal fun LoginRoute(
         },
     )
 
-    if (uiState.isOtpSent) {
+    if (uiState.isLoginSuccessful) {
         val message = stringResource(id = R.string.otp_sent_successfully)
-        LaunchedEffect(key1 = uiState.isOtpSent) {
-            val phone = uiState.typedPhone
-            val countryCode = uiState.countryCodeModel.dialcode
-                .replace(Regex("\\W"), "")
-            val accountType = uiState.accountType
-
-            onboardSharedViewModel.setAccountData(
-                phone = phone, countryCode = countryCode, accountType = accountType
-            )
-
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            delay(500)
-            viewModel.resetOtpSent()
-            onNextPage()
-        }
+//        LaunchedEffect(key1 = uiState.isLoginSuccessful) {
+//            val phone = uiState.typedPhone
+//            val countryCode = uiState.countryCodeModel.dialcode
+//                .replace(Regex("\\W"), "")
+//            val accountType = uiState.accountType
+//
+//            onboardSharedViewModel.setAccountData(
+//                phone = phone, countryCode = countryCode, accountType = accountType
+//            )
+//
+//            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+//            delay(500)
+//            viewModel.resetOtpSent()
+//            onNextPage()
+//        }
     }
 
     ObserverAsEvents(flow = viewModel.uiEvent) { event ->
@@ -234,7 +249,6 @@ internal fun LoginRoute(
         }
     }*/
 
-    Timber.d("Error: ${phoneNumberState.getError()}")
 }
 
 @OptIn(
@@ -246,19 +260,13 @@ internal fun LoginScreen(
     modifier: Modifier = Modifier,
     uiState: LoginViewModelState = LoginViewModelState(),
     uiAction: (LoginUiAction) -> Unit = {},
-    phoneNumberState: TextFieldState = PhoneNumberState(),
+    usernameState: TextFieldState = UsernameFieldState(""),
+    passwordState: TextFieldState = PasswordFieldState(),
     onOpenWebPage: (url: String) -> Unit = {},
     onValidate: () -> Unit = { },
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ) {
     val scope = rememberCoroutineScope()
-
-    var showOtpLimitReachedDialog by remember {
-        mutableStateOf(false)
-    }
-    var showCountryRestrictionDialog by remember {
-        mutableStateOf(false)
-    }
 
     Scaffold(
         modifier = modifier
@@ -294,12 +302,19 @@ internal fun LoginScreen(
                 AppBrand()
                 Spacer(modifier = Modifier.height(60.dp))
 
-                PhoneInput(
-                    countryCodeModel = uiState.countryCodeModel,
-                    phoneNumberState = phoneNumberState,
-                    onChange = { uiAction(LoginUiAction.TypingPhone(it)) },
-                    onChooseCountry = { showCountryRestrictionDialog = true; },
-                    onImeAction = onValidate
+                // Add username input
+                UsernameInput(
+                    usernameState = usernameState,
+                    onValueChange = { uiAction(LoginUiAction.TypingUsername(it)) },
+                    enableCharacterCounter = false,
+                    provideFocusRequester = { FocusRequester() }
+                )
+                // Add password input
+                PasswordInput(
+                    passwordState = passwordState,
+                    onValueChange = { uiAction(LoginUiAction.TypingPassword(it)) },
+                    enableCharacterCounter = false,
+                    provideFocusRequester = { FocusRequester() }
                 )
 
                 Spacer(modifier = Modifier.height(insetMedium))
@@ -307,7 +322,7 @@ internal fun LoginScreen(
                 val loadingButtonState by remember {
                     mutableStateOf(LoadingButtonState())
                 }
-                loadingButtonState.enabled = phoneNumberState.text.isNotBlank() &&
+                loadingButtonState.enabled = usernameState.text.isNotBlank() &&
                         uiState.loadState.action !is LoadState.Loading
 
                 loadingButtonState.loadingState = when (uiState.loadState.action) {
@@ -332,7 +347,7 @@ internal fun LoginScreen(
                         LoadingState.Failed
                     }
                     else -> {
-                        if (uiState.isOtpSent) {
+                        if (uiState.isLoginSuccessful) {
                             LoadingState.Success
                         } else {
                             LoadingState.Idle
@@ -360,7 +375,7 @@ internal fun LoginScreen(
                             loadingButtonWidth = it.width
                         },
                     loadingButtonState = loadingButtonState,
-                    text = "Get OTP",
+                    text = "Login",
                     onClick = onValidate,
                     resetDelay = 50 /* for haptics */,
                     onResetRequest = { currentState ->
@@ -425,18 +440,6 @@ internal fun LoginScreen(
                             .padding(4.dp)
                     )
                 }
-            }
-        }
-
-        if (showOtpLimitReachedDialog) {
-            OtpLimitReachedDialog {
-                showOtpLimitReachedDialog = false
-            }
-        }
-
-        if (showCountryRestrictionDialog) {
-            CountryRestrictionDialog {
-                showCountryRestrictionDialog = false
             }
         }
     }
@@ -523,18 +526,15 @@ internal fun LoginScreen(
 
                         }
 
-                        is OtpLimitReachedException -> {
-                            // TODO: show otp limit reached
-                            // showOtpLimitReachedAlert()
-                            showOtpLimitReachedDialog = true
-                            uiAction(LoginUiAction.ErrorShown(0))
-                        }
-
-                        is InvalidMobileNumberException -> {
-                            // btnGetOtp.shakeNow()
+                        is LoginException -> {
+                            val message = uiState.uiErrorMessage?.asString(context)
+                                ?: "Invalid username or password"
+                            LaunchedEffect(key1 = Unit) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(message)
+                                }
+                            }
                             HapticUtil.createError(LocalContext.current)
-                            val errorMessage =
-                                stringResource(id = R.string.please_check_your_number)
                         }
 
                         is AccountUnavailableException -> {
@@ -548,6 +548,170 @@ internal fun LoginScreen(
                 }
             }
             uiAction(LoginUiAction.ErrorShown(0))
+        }
+    }
+}
+
+@Composable
+private fun UsernameInput(
+    modifier: Modifier = Modifier,
+    usernameState: TextFieldState,
+    onValueChange: (text: String) -> Unit = {},
+    enableCharacterCounter: Boolean = false,
+    provideFocusRequester: () -> FocusRequester = { FocusRequester() },
+) {
+    val focusManager = LocalFocusManager.current
+    val mergedTextStyle = MaterialTheme.typography
+        .bodyMedium
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = insetMedium, vertical = insetSmall),
+    ) {
+        val colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = LightGray100,
+            unfocusedContainerColor = LightGray100,
+            disabledContainerColor = LightGray100,
+            focusedBorderColor = LightGray200,
+            unfocusedBorderColor = LightGray200,
+        )
+        OutlinedTextField(
+            value = usernameState.text,
+            onValueChange = { text ->
+                usernameState.text = text.take(30)
+                onValueChange(usernameState.text)
+            },
+            placeholder = {
+                Text(
+                    text = "Enter username",
+                    style = mergedTextStyle.copy(color = TextSecondary)
+                )
+            },
+            keyboardOptions = KeyboardOptions.Default
+                .copy(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            /*supportingText = {
+                if (enableCharacterCounter) {
+                    val count = storeNameState.text.length
+                    Text(
+                        text = "$count/20",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Normal, color = TextSecondary),
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.exposeBounds()
+                            .fillMaxWidth()
+                    )
+                }
+            },*/
+            textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
+            maxLines = 1,
+            colors = colors,
+            shape = RoundedCornerShape(cornerSizeMedium),
+            isError = usernameState.showErrors(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(provideFocusRequester())
+                .onFocusChanged { focusState ->
+                    usernameState.onFocusChange(focusState.isFocused)
+                    if (!focusState.isFocused) {
+                        usernameState.enableShowErrors()
+                    }
+                }
+                .padding(vertical = insetVerySmall),
+        )
+
+        usernameState.getError()?.let { error ->
+            TextFieldError(textError = error)
+        }
+    }
+}
+
+@Composable
+private fun PasswordInput(
+    modifier: Modifier = Modifier,
+    passwordState: TextFieldState,
+    onValueChange: (text: String) -> Unit = {},
+    enableCharacterCounter: Boolean = false,
+    provideFocusRequester: () -> FocusRequester = { FocusRequester() },
+) {
+    val focusManager = LocalFocusManager.current
+    val mergedTextStyle = MaterialTheme.typography
+        .bodyMedium
+
+    Column(
+        modifier = modifier
+            .padding(horizontal = insetMedium, vertical = insetSmall),
+    ) {
+        var passwordVisible by rememberSaveable { mutableStateOf(false) }
+
+        val colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = LightGray100,
+            unfocusedContainerColor = LightGray100,
+            disabledContainerColor = LightGray100,
+            focusedBorderColor = LightGray200,
+            unfocusedBorderColor = LightGray200,
+        )
+        OutlinedTextField(
+            value = passwordState.text,
+            onValueChange = { text ->
+                passwordState.text = text.take(30)
+                onValueChange(passwordState.text)
+            },
+            placeholder = {
+                Text(
+                    text = "Enter password",
+                    style = mergedTextStyle.copy(color = TextSecondary)
+                )
+            },
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            /*supportingText = {
+                if (enableCharacterCounter) {
+                    val count = storeNameState.text.length
+                    Text(
+                        text = "$count/20",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Normal, color = TextSecondary),
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.exposeBounds()
+                            .fillMaxWidth()
+                    )
+                }
+            },*/
+            textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
+            maxLines = 1,
+            colors = colors,
+            shape = RoundedCornerShape(cornerSizeMedium),
+            isError = passwordState.showErrors(),
+            trailingIcon = {
+                val image = if (passwordVisible)
+                    Icons.Filled.Visibility
+                else Icons.Filled.VisibilityOff
+
+                // Please provide localized description for accessibility services
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = {passwordVisible = !passwordVisible}){
+                    Icon(imageVector  = image, description)
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(provideFocusRequester())
+                .onFocusChanged { focusState ->
+                    passwordState.onFocusChange(focusState.isFocused)
+                    if (!focusState.isFocused) {
+                        passwordState.enableShowErrors()
+                    }
+                }
+                .padding(vertical = insetVerySmall),
+        )
+
+        passwordState.getError()?.let { error ->
+            TextFieldError(textError = error)
         }
     }
 }
@@ -849,8 +1013,8 @@ private fun LegalLayout(
 }
 
 // @ThemePreviews
-// @Preview(group = "main", device = Devices.PIXEL_3A, apiLevel = 33, showBackground = true)
-@DevicePreviews
+@Preview(group = "main", device = Devices.PIXEL_3A, apiLevel = 36, showBackground = true)
+// @DevicePreviews
 @Composable
 private fun LoginScreenPreview() {
     Box {
