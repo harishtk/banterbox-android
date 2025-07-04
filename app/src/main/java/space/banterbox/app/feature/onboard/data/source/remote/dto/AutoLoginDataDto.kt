@@ -15,7 +15,7 @@ data class AutoLoginDataDto(
 fun AutoLoginDataDto.toAutoLoginData(): AutoLoginData {
     return AutoLoginData(
         forceUpdate = forceUpdate,
-        loginUser = loginUserDto?.toLoginUser("", "", ""),
+        loginUser = loginUserDto?.toLoginUser(),
         maintenance = this.maintenance ?: false,
 
     )

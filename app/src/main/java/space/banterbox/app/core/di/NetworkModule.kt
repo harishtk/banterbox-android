@@ -21,8 +21,14 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.greenrobot.eventbus.EventBus
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
+import space.banterbox.app.core.net.TokenAuthenticator
+import space.banterbox.app.core.persistence.PersistentStore
+import space.banterbox.app.eventbus.UnAuthorizedEvent
+import space.banterbox.app.feature.onboard.data.source.remote.AuthApi
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -30,33 +36,79 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    @Provides
-    @Singleton
-    fun okHttpCallFactory(): Call.Factory = OkHttpClient.Builder()
-        .addInterceptor(
-            HttpLoggingInterceptor()
-                .apply {
-                    if (BuildConfig.DEBUG) {
-                        setLevel(HttpLoggingInterceptor.Level.BODY)
-                    }
-                },
-        )
-        .build()
-
     @Singleton
     @Provides
-    fun provideOkhttpClient(): OkHttpClient {
+    fun provideOkhttpCallFactory(
+        persistentStore: PersistentStore,
+    ): okhttp3.Call.Factory {
         val okHttpClientBuilder = OkHttpClient.Builder()
             .connectTimeout(2, TimeUnit.MINUTES)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(3, TimeUnit.MINUTES)
 
         okHttpClientBuilder.addInterceptor(UserAgentInterceptor())
-        okHttpClientBuilder.addInterceptor(AndroidHeaderInterceptor())
-        okHttpClientBuilder.addInterceptor(JwtInterceptor())
+        okHttpClientBuilder.addInterceptor(
+            AndroidHeaderInterceptor(
+                versionCode = BuildConfig.VERSION_CODE.toString(),
+                versionName = BuildConfig.VERSION_NAME
+            )
+        )
+        okHttpClientBuilder.addInterceptor(
+            JwtInterceptor { persistentStore.deviceToken }
+        )
         okHttpClientBuilder.addInterceptor(PlatformInterceptor())
-        okHttpClientBuilder.addInterceptor(GuestUserInterceptor())
-        okHttpClientBuilder.addInterceptor(ForbiddenInterceptor())
+        okHttpClientBuilder.addInterceptor(
+            GuestUserInterceptor { persistentStore.fcmToken }
+        )
+        okHttpClientBuilder.addInterceptor(
+            ForbiddenInterceptor { EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis())) }
+        )
+
+        // Add delays to all api calls
+        // ifDebug { okHttpClientBuilder.addInterceptor(DelayInterceptor(2_000, TimeUnit.MILLISECONDS)) }
+
+        if (envForConfig(BuildConfig.ENV) == Env.DEV || BuildConfig.DEBUG) {
+            val httpLoggingInterceptor = HttpLoggingInterceptor()
+            httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+            okHttpClientBuilder.addInterceptor(httpLoggingInterceptor)
+        }
+        return okHttpClientBuilder.build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideOkhttpClient(
+        authApi: AuthApi,
+        persistentStore: PersistentStore,
+    ): OkHttpClient {
+        val okHttpClientBuilder = OkHttpClient.Builder()
+            .connectTimeout(2, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(3, TimeUnit.MINUTES)
+
+        okHttpClientBuilder.addInterceptor(UserAgentInterceptor())
+        okHttpClientBuilder.addInterceptor(
+            AndroidHeaderInterceptor(
+                versionCode = BuildConfig.VERSION_CODE.toString(),
+                versionName = BuildConfig.VERSION_NAME
+            )
+        )
+        okHttpClientBuilder.addInterceptor(
+            JwtInterceptor { persistentStore.deviceToken }
+        )
+        okHttpClientBuilder.addInterceptor(PlatformInterceptor())
+        okHttpClientBuilder.addInterceptor(
+            GuestUserInterceptor { persistentStore.fcmToken }
+        )
+        okHttpClientBuilder.addInterceptor(
+            ForbiddenInterceptor { EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis())) }
+        )
+        okHttpClientBuilder.authenticator(
+            TokenAuthenticator(
+                api = authApi,
+                store = persistentStore
+            )
+        )
 
         // Add delays to all api calls
         // ifDebug { okHttpClientBuilder.addInterceptor(DelayInterceptor(2_000, TimeUnit.MILLISECONDS)) }

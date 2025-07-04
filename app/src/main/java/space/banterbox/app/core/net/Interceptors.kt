@@ -1,11 +1,8 @@
 package space.banterbox.app.core.net
 
-import space.banterbox.app.BuildConfig
-import space.banterbox.app.core.di.AppDependencies
-import space.banterbox.app.eventbus.UnAuthorizedEvent
 import okhttp3.Interceptor
 import okhttp3.Response
-import org.greenrobot.eventbus.EventBus
+import space.banterbox.app.eventbus.UnAuthorizedEvent
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
@@ -15,13 +12,16 @@ import javax.annotation.Nonnull
 const val DEFAULT_USER_AGENT = "Android"
 const val DEFAULT_PLATFORM = "android"
 
-class AndroidHeaderInterceptor : Interceptor {
+class AndroidHeaderInterceptor(
+    private val versionCode: String,
+    private val versionName: String,
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
         proceed(
             request()
                 .newBuilder()
-                .addHeader("App-Version-Code", BuildConfig.VERSION_CODE.toString())
-                .addHeader("App-Version-Name", BuildConfig.VERSION_NAME)
+                .addHeader("App-Version-Code", versionCode)
+                .addHeader("App-Version-Name", versionName)
                 .build()
         )
     }
@@ -40,11 +40,12 @@ class PlatformInterceptor(
     }
 }
 
-class GuestUserInterceptor : Interceptor {
+class GuestUserInterceptor(
+    private val provideDeviceToken: () -> String?,
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
         // Timber.w("NO_GUEST: No guest user flag is configured")
-        val isGuestUser = AppDependencies.persistentStore
-            ?.deviceToken.isNullOrBlank()
+        val isGuestUser = provideDeviceToken().isNullOrBlank()
         proceed(
             request()
                 .newBuilder()
@@ -81,11 +82,13 @@ class UserAgentInterceptor(
     }
 }*/
 
-class JwtInterceptor() : Interceptor {
+class JwtInterceptor(
+    private val provideToken: () -> String,
+) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
         // Timber.w("NO_JWT: No jwt token is configured")
-        val jwt = AppDependencies.persistentStore?.deviceToken ?: ""
+        val jwt = provideToken()
         proceed(
             request()
                 .newBuilder()
@@ -99,11 +102,13 @@ class JwtInterceptor() : Interceptor {
 /**
  * Catches the [HttpURLConnection.HTTP_FORBIDDEN] and dispatches an [UnAuthorizedEvent] event
  */
-class ForbiddenInterceptor : Interceptor {
+class ForbiddenInterceptor(
+    private val onForbidden: () -> Unit
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response = chain.run {
         return proceed(request()).also { response ->
             if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis()))
+                onForbidden()
             }
         }
     }

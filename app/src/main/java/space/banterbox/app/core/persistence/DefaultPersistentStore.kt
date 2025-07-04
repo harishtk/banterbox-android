@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import java.util.UUID
+import androidx.core.content.edit
 
 class DefaultPersistentStore(
     private val preferences: SharedPreferences,
@@ -14,6 +15,9 @@ class DefaultPersistentStore(
 
     override val deviceToken: String
         get() = getAppPreferences().getString(UserPreferenceKeys.DEVICE_TOKEN, "") ?: ""
+
+    override val refreshToken: String
+        get() = getAppPreferences().getString(UserPreferenceKeys.REFRESH_TOKEN, "") ?: ""
 
     override val tempId: String
         get() = getAppPreferences().getString(UserPreferenceKeys.TEMP_ID, "") ?: ""
@@ -37,12 +41,6 @@ class DefaultPersistentStore(
     override val installReferrerFetched: Boolean
         get() = getAppPreferences().getBoolean(UserPreferenceKeys.INSTALL_REFERRAL_FETCHED, false)
 
-    override val isFeedUserGuideShown: Boolean
-        get() = getAppPreferences().getBoolean(UserPreferenceKeys.FEED_USER_GUIDE_SHOWN, false)
-
-    override val isFeedWishlistGuideShown: Boolean
-        get() = getAppPreferences().getBoolean(UserPreferenceKeys.WISHLIST_GUIDE_SHOWN, false)
-
     override fun getOrCreateDeviceId(): String {
         val id = deviceId.ifBlank {
             UUID.randomUUID().toString().also { newId ->
@@ -53,7 +51,12 @@ class DefaultPersistentStore(
     }
 
     override fun setDeviceToken(token: String): String {
-        getAppPreferences().edit().putString(UserPreferenceKeys.DEVICE_TOKEN, token).apply()
+        getAppPreferences().edit { putString(UserPreferenceKeys.DEVICE_TOKEN, token) }
+        return token
+    }
+
+    override fun setRefreshToken(token: String): String {
+        getAppPreferences().edit { putString(UserPreferenceKeys.REFRESH_TOKEN, token) }
         return token
     }
 
@@ -92,20 +95,9 @@ class DefaultPersistentStore(
             .apply()
     }
 
-    override fun setFeedUserGuideShown(shown: Boolean) {
-        getAppPreferences().edit()
-            .putBoolean(UserPreferenceKeys.FEED_USER_GUIDE_SHOWN, shown)
-            .apply()
-    }
-
-    override fun setFeedWishlistGuideShown(shown: Boolean) {
-        getAppPreferences().edit()
-            .putBoolean(UserPreferenceKeys.WISHLIST_GUIDE_SHOWN, shown)
-            .apply()
-    }
-
     override fun logout() {
         setDeviceToken("")
+        setRefreshToken("")
         /*setFcmToken("")
         setFcmTokenSynced(false)
         setLastTokenSyncTime(-1)*/
@@ -156,6 +148,7 @@ class DefaultPersistentStore(
 
         object UserPreferenceKeys {
             const val DEVICE_TOKEN: String = "device_token"
+            const val REFRESH_TOKEN: String = "refresh-token"
             const val USER_ID: String = "user_id"
             const val TEMP_ID: String = "temp_id"
             const val USERNAME: String = "username"

@@ -15,6 +15,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import retrofit2.Retrofit
+import retrofit2.create
+import space.banterbox.app.feature.onboard.data.source.remote.AuthApi
 import javax.inject.Singleton
 
 @Module
@@ -39,5 +41,10 @@ object OnboardModule {
     @Singleton
     fun provideAccountsApiService(@WebService retrofit: Retrofit): AccountsApi =
         retrofit.create(AccountsApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAuthApiService(@WebService retrofit: Retrofit): AuthApi =
+        retrofit.create<AuthApi>()
 
 }
