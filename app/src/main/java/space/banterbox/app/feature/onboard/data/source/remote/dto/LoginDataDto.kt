@@ -35,12 +35,6 @@ data class LoginUserDto(
     val profileImage: String?,
     @SerializedName("createdAt")
     val createdAt: String,
-    @SerializedName("followersCount")
-    val followersCount: Int,
-    @SerializedName("followingCount")
-    val followingCount: Int,
-    @SerializedName("postsCount")
-    val postsCount: Int,
 )
 
 fun LoginUserDto.toLoginUser(): LoginUser {
@@ -51,8 +45,8 @@ fun LoginUserDto.toLoginUser(): LoginUser {
         bio = bio,
         profileImage = profileImage ?: "",
         createdAt = createdAt,
-        followersCount = followersCount,
-        followingCount = followingCount,
-        postsCount = postsCount
+        followersCount = 0,
+        followingCount = 0,
+        postsCount = 0
     )
 }

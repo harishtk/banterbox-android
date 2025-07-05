@@ -1,9 +1,9 @@
-package space.banterbox.app.core.designsystem.component.text
+package space.banterbox.app.core.designsystem.component.forms
 
 import space.banterbox.app.Constant
 
 class UsernameFieldState(private val initialUsername: String) :
-    TextFieldState(validator = ::isValidUsername, errorFor = ::usernameErrorMessage) {
+    space.banterbox.app.core.designsystem.component.text.TextFieldState(validator = ::isValidUsername, errorFor = ::usernameErrorMessage) {
 
     init {
         this.text = initialUsername
@@ -22,4 +22,7 @@ private fun usernameErrorMessage(username: String): String {
     }
 }
 
-val UsernameFieldStateSaver = textFieldStateSaver(UsernameFieldState(""))
+val UsernameFieldStateSaver =
+    _root_ide_package_.space.banterbox.app.core.designsystem.component.text.textFieldStateSaver(
+        UsernameFieldState("")
+    )

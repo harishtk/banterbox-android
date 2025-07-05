@@ -145,8 +145,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import space.banterbox.app.common.util.UiText
 import space.banterbox.app.core.designsystem.component.text.PasswordFieldState
-import space.banterbox.app.core.designsystem.component.text.UsernameFieldState
-import space.banterbox.app.core.designsystem.component.text.UsernameFieldStateSaver
+import space.banterbox.app.core.designsystem.component.forms.UsernameFieldState
+import space.banterbox.app.core.designsystem.component.forms.UsernameFieldStateSaver
 import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberState
 import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberStateSaver
 import space.banterbox.app.feature.onboard.presentation.util.LoginException
@@ -166,6 +166,7 @@ internal fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
     onboardSharedViewModel: OnboardSharedViewModel,
     onOpenWebPage: (url: String) -> Unit,
+    onSignupClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -207,6 +208,7 @@ internal fun LoginRoute(
                 )
             }
         },
+        onSignupClick = onSignupClick
     )
 
     if (uiState.isLoginSuccessful) {
@@ -262,6 +264,7 @@ internal fun LoginScreen(
     passwordState: TextFieldState = PasswordFieldState(),
     onOpenWebPage: (url: String) -> Unit = {},
     onValidate: () -> Unit = { },
+    onSignupClick: () -> Unit = { },
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ) {
     val scope = rememberCoroutineScope()
@@ -390,6 +393,24 @@ internal fun LoginScreen(
                         }
                     }
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    TextButton(
+                        onClick = {}
+                    ) {
+                        Text(text = "Forgot password?")
+                    }
+
+                    TextButton(
+                        onClick = onSignupClick
+                    ) {
+                        Text(text = "Signup")
+                    }
+                }
 
                 LegalLayout(
                     checked = uiState.toggleButtonState,

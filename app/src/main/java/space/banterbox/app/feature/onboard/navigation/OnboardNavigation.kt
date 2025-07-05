@@ -21,12 +21,14 @@ import space.banterbox.app.feature.onboard.presentation.boarding.AddStoreRoute
 import space.banterbox.app.feature.onboard.presentation.boarding.LaunchStoreRoute
 import space.banterbox.app.feature.onboard.presentation.login.LoginRoute
 import space.banterbox.app.feature.onboard.presentation.login.OtpRoute
+import space.banterbox.app.feature.onboard.presentation.signup.SignupRoute
 import space.banterbox.app.sharedViewModel
 
 const val AUTH_GRAPH_ROUTE_PATTERN = "auth_graph"
 const val ONBOARD_GRAPH_ROUTE_PATTERN = "onboard_graph"
 
 const val loginNavigationRoute = "login_route"
+const val signupRoute = "signup_route"
 const val otpNavigationRoute = "otp_route"
 const val onboardSuccessNavigationRoute = "onboard_success_route"
 
@@ -78,7 +80,36 @@ fun NavGraphBuilder.authGraph(
                     navController.navigate(otpNavigationRoute)
                 },
                 onboardSharedViewModel = sharedViewModel,
-                onOpenWebPage = onOpenWebPage
+                onOpenWebPage = onOpenWebPage,
+                onSignupClick = {
+                    navController.navigate(signupRoute)
+                }
+            )
+        }
+        composable(
+            route = signupRoute,
+            enterTransition = {
+                fadeIn(
+                    animationSpec = tween(
+                        300, easing = LinearEasing
+                    )
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(
+                        300, easing = LinearEasing
+                    )
+                ) + slideOutOfContainer(
+                    animationSpec = tween(300, easing = EaseOut),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                )
+            }
+        ) { entry ->
+            val sharedViewModel = entry.sharedViewModel<OnboardSharedViewModel>(navController)
+            SignupRoute(
+                onboardSharedViewModel = sharedViewModel,
+                onNextPage = navController::popBackStack,
             )
         }
         composable(
