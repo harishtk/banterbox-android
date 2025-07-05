@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -25,8 +24,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialog
@@ -64,8 +61,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.google.android.gms.auth.api.phone.SmsRetriever
-import com.pepul.shops.core.analytics.Analytics
-import com.pepul.shops.core.analytics.LocalAnalyticsLogger
+import space.banterbox.core.analytics.Analytics
+import space.banterbox.core.analytics.LocalAnalyticsLogger
 import space.banterbox.app.R
 import space.banterbox.app.UserViewModel
 import space.banterbox.app.common.util.InvalidOtpException
@@ -80,7 +77,6 @@ import space.banterbox.app.core.designsystem.component.ShopsBackground
 import space.banterbox.app.core.designsystem.component.text.OtpFieldState
 import space.banterbox.app.core.designsystem.component.text.OtpFieldStateSaver
 import space.banterbox.app.core.designsystem.component.text.OtpTextField
-import space.banterbox.app.core.designsystem.supportFoldables
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.feature.onboard.OnboardSharedViewModel
 import space.banterbox.app.feature.onboard.presentation.util.RecaptchaException

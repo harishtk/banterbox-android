@@ -6,4 +6,13 @@ data class LoginData(
     val loginUser: LoginUser?,
     val deviceToken: String?,
     val refreshToken: String?,
-)
+    val showProfile: Boolean = false,
+) {
+    companion object {
+        fun empty() = LoginData(
+            loginUser = null,
+            deviceToken = null,
+            refreshToken = null,
+        )
+    }
+}

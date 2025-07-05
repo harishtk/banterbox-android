@@ -3,8 +3,8 @@ package com.aiavatar.core.analytics
 import android.os.Bundle
 import androidx.annotation.Size
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.pepul.shops.core.analytics.AnalyticsEvent
-import com.pepul.shops.core.analytics.AnalyticsLogger
+import space.banterbox.core.analytics.AnalyticsEvent
+import space.banterbox.core.analytics.AnalyticsLogger
 import javax.inject.Inject
 
 private fun List<AnalyticsEvent.Param>.asBundle(): Bundle? {

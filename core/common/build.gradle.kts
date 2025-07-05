@@ -1,5 +1,9 @@
 @file:Suppress("DSL_SCOPE_VIOLATION")
 
+import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
@@ -29,9 +33,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
+
 }
 
 dependencies {

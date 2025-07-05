@@ -3,7 +3,7 @@ package com.aiavatar.core.analytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.pepul.shops.core.analytics.AnalyticsLogger
+import space.banterbox.core.analytics.AnalyticsLogger
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -14,10 +14,8 @@ import space.banterbox.app.BuildConfig
 import space.banterbox.app.common.util.JsonParser
 import space.banterbox.app.common.util.Util
 import space.banterbox.app.core.data.repository.DefaultCountryCodeListRepository
-import space.banterbox.app.core.data.repository.DefaultShopDataRepository
 import space.banterbox.app.core.data.repository.DefaultUserDataRepository
 import space.banterbox.app.core.domain.repository.CountryCodeListRepository
-import space.banterbox.app.core.domain.repository.ShopDataRepository
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.persistence.DefaultPersistentStore
 import space.banterbox.app.core.persistence.PersistentStore
@@ -103,11 +101,6 @@ interface AppBinderModule {
     fun bindsUserDataRepository(
         userDataRepository: DefaultUserDataRepository
     ): UserDataRepository
-
-    @Binds
-    fun bindsShopDataRepository(
-        shopDataRepository: DefaultShopDataRepository,
-    ): ShopDataRepository
 
     @Binds
     fun bindsCountryCodeListRepository(

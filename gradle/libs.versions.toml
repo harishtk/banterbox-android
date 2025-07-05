@@ -38,6 +38,8 @@ glideTransformation = "4.3.0"
 gradle = "8.2.0"
 googleServiesPlugin = "4.4.3"
 googlePlayCore = "1.8.1"
+googlePlayReview = "2.0.2"
+googlePlayAppUpdate = "2.1.0"
 googlePlayServicesAuth = "21.3.0"
 googlePlayServicesAuthPhone = "18.0.1"
 googlePlayMlKit = "17.1.0"
@@ -174,6 +176,8 @@ glide-transformations =  { module = "jp.wasabeef:glide-transformations", version
 google-android-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 google-material = { module = "com.google.android.material:material", version.ref = "material" }
 google-play-core-ktx = { module = "com.google.android.play:core-ktx", version.ref = "googlePlayCore" }
+google-play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "googlePlayReview" }
+google-play-appupdate-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "googlePlayAppUpdate" }
 google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
 google-play-services-auth-api-phone = { group = "com.google.android.gms", name = "play-services-auth-api-phone", version = "googlePlayServicesAuthPhone"}
 google-play-services-mlkit-facedetection = { module = "com.google.android.gms:play-services-mlkit-face-detection", version.ref = "googlePlayMlKit" }

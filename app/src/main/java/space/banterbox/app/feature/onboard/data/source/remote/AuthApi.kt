@@ -12,12 +12,12 @@ import space.banterbox.app.feature.onboard.data.source.remote.model.RefreshToken
 
 interface AuthApi {
 
-    @POST("/auth/signup")
+    @POST("auth/signup")
     suspend fun signup(@Body signupRequestDto: SignupRequestDto): Response<BaseResponse>
 
-    @POST("/auth/login")
+    @POST("auth/login")
     suspend fun login(@Body loginRequestDto: LoginRequestDto): Response<LoginResponse>
 
-    @POST("/auth/refresh")
+    @POST("auth/refresh")
     suspend fun refreshToken(@Body refreshTokenRequestDto: RefreshTokenRequestDto): Response<RefreshTokenResponse>
 }

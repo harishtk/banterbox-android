@@ -11,11 +11,13 @@ import space.banterbox.app.core.domain.model.BaseResponse
 import space.banterbox.app.core.util.NetworkMonitor
 import space.banterbox.app.core.util.NetworkResult
 import space.banterbox.app.feature.onboard.data.source.remote.dto.LoginRequestDto
+import space.banterbox.app.feature.onboard.data.source.remote.dto.RefreshTokenRequestDto
 import space.banterbox.app.feature.onboard.data.source.remote.dto.SignupRequestDto
 import space.banterbox.app.feature.onboard.data.source.remote.model.LoginResponse
+import space.banterbox.app.feature.onboard.data.source.remote.model.RefreshTokenResponse
 import javax.inject.Inject
 
-private const val AUTH_BASE_URL = BuildConfig.BASE_URL
+private const val AUTH_BASE_URL = BuildConfig.API_URL
 
 class AuthRemoteDataSource @Inject constructor(
     networkHelper: NetworkMonitor,
@@ -38,4 +40,6 @@ class AuthRemoteDataSource @Inject constructor(
     suspend fun login(loginRequestDto: LoginRequestDto): NetworkResult<LoginResponse> =
         safeApiCall { apiService.login(loginRequestDto) }
 
+    suspend fun refresh(refreshTokenRequestDto: RefreshTokenRequestDto): NetworkResult<RefreshTokenResponse> =
+        safeApiCall { apiService.refreshToken(refreshTokenRequestDto) }
 }

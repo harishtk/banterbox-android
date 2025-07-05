@@ -1,13 +1,12 @@
 package space.banterbox.app.feature.onboard.data.repository
 
-import androidx.compose.runtime.produceState
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.onboard.data.source.remote.dto.asDto
 import space.banterbox.app.feature.onboard.presentation.util.AccountUnavailableException
 import space.banterbox.app.feature.onboard.presentation.util.InvalidMobileNumberException
 import space.banterbox.app.feature.onboard.presentation.util.OtpLimitReachedException
-import com.pepul.shops.core.common.concurrent.AiaDispatchers
-import com.pepul.shops.core.common.concurrent.Dispatcher
+import space.banterbox.core.common.concurrent.AiaDispatchers
+import space.banterbox.core.common.concurrent.Dispatcher
 import space.banterbox.app.common.util.InvalidOtpException
 import space.banterbox.app.core.di.ApplicationCoroutineScope
 import space.banterbox.app.core.domain.model.ProductCategory
@@ -38,14 +37,12 @@ import space.banterbox.app.feature.onboard.domain.model.request.LogoutRequest
 import space.banterbox.app.feature.onboard.domain.model.request.SocialLoginRequest
 import space.banterbox.app.feature.onboard.domain.model.request.StoreCategoryRequest
 import space.banterbox.app.feature.onboard.domain.repository.AccountsRepository
-import space.banterbox.app.feature.onboard.presentation.login.CALL_FOR_VERIFY_OTP
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -96,7 +93,7 @@ class RemoteOnlyAccountsRepository @Inject constructor(
         emit(remoteDataSource.login(loginRequest.asDto()))
     }
         .map {
-            parseLoginResult(loginRequest.callFor, it)
+            parseLoginResult("", it)
         }
         .flowOn(ioDispatcher)
 
@@ -344,15 +341,7 @@ class RemoteOnlyAccountsRepository @Inject constructor(
                         }
                     } else {
                         Result.Success(
-                            LoginData(
-                                loginUser = null,
-                                tempId = "",
-                                deviceToken = null,
-                                productCategory = emptyList(),
-                                showProfile = false,
-                                onboardStep = "",
-                                shopData = null,
-                            )
+                            LoginData.empty()
                         )
                     }
                 } else {
@@ -396,3 +385,6 @@ class RemoteOnlyAccountsRepository @Inject constructor(
     }
 
 }
+
+private const val CALL_FOR_VERIFY_OTP = ""
+private const val CALL_FOR_SEND_OTP = ""

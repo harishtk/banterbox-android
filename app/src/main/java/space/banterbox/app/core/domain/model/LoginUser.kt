@@ -10,4 +10,6 @@ data class LoginUser(
     val followersCount: Int,
     val followingCount: Int,
     val postsCount: Int,
+    val notificationCount: Int = 0,
+    val onboardStep: String = ""
 )

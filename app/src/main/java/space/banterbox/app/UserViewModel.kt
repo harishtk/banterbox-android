@@ -3,7 +3,7 @@ package space.banterbox.app
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepul.shops.core.datastore.PsPreferencesDataSource
+import space.banterbox.core.datastore.PsPreferencesDataSource
 import space.banterbox.app.core.di.AppDependencies
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.domain.usecase.AuthenticationState
@@ -15,7 +15,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -139,20 +138,6 @@ class UserViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = false
         )
-
-    /* Cart count */
-    val cartCount: StateFlow<Int> = userDataRepository.userData
-        .map { it.cartCount }
-        .distinctUntilChanged()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = 0
-        )
-
-    fun setCartCount(count: Int) {
-        viewModelScope.launch { userDataRepository.updateCartCount(count) }
-    }
 
     /* Notification badge count */
     val notificationBadgeCount: StateFlow<Int> = userDataRepository.userData

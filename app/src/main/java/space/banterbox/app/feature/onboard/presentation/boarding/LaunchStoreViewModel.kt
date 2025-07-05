@@ -8,7 +8,6 @@ import space.banterbox.app.common.util.UiText
 import space.banterbox.app.common.util.loadstate.LoadState
 import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
-import space.banterbox.app.core.domain.repository.ShopDataRepository
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.net.NoInternetException
@@ -35,7 +34,6 @@ import javax.inject.Inject
 class LaunchStoreViewModel @Inject constructor(
     private val accountsRepository: AccountsRepository,
     private val userDataRepository: UserDataRepository,
-    private val shopDataRepository: ShopDataRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -45,16 +43,7 @@ class LaunchStoreViewModel @Inject constructor(
     private var launchStoreJob: Job? = null
 
     init {
-        shopDataRepository.shopData
-            .map { it.name }
-            .onEach { storeName ->
-                _uiState.update { state ->
-                    state.copy(
-                        storeName = storeName
-                    )
-                }
-            }
-            .launchIn(viewModelScope)
+
     }
 
     fun launchStore() {

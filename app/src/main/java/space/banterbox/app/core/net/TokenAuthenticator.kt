@@ -7,13 +7,15 @@ import okhttp3.Response
 import okhttp3.Route
 import retrofit2.HttpException
 import space.banterbox.app.core.persistence.PersistentStore
+import space.banterbox.app.core.util.NetworkResult
 import space.banterbox.app.feature.onboard.data.source.remote.AuthApi
+import space.banterbox.app.feature.onboard.data.source.remote.AuthRemoteDataSource
 import space.banterbox.app.feature.onboard.data.source.remote.dto.RefreshTokenRequestDto
 import java.io.IOException
 import javax.net.ssl.HttpsURLConnection
 
 class TokenAuthenticator(
-    private val api: AuthApi,
+    private val authREmoteDataSource: AuthRemoteDataSource,
     private val store: PersistentStore,
 ) : Authenticator {
 
@@ -40,11 +42,17 @@ class TokenAuthenticator(
     private suspend fun refreshToken(currentToken: String?): String? {
         return try {
             val request = RefreshTokenRequestDto(store.refreshToken)
-            val response = api.refreshToken(request)
-            if (response.isSuccessful) {
-                response.body()?.data?.accessToken
-            } else {
-                null
+            when (val networkResult = authREmoteDataSource.refresh(request)) {
+                is NetworkResult.Success -> {
+                    return if (networkResult.data?.statusCode == HttpsURLConnection.HTTP_OK) {
+                        networkResult.data.data!!.accessToken
+                    } else {
+                        null
+                    }
+                }
+                is NetworkResult.Error -> {
+                    null
+                }
             }
         } catch (e: HttpException) {
             null

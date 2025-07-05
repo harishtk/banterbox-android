@@ -1,10 +1,9 @@
 package space.banterbox.app.core.domain.repository
 
-import com.pepul.shops.core.datastore.UserData
-import com.pepul.shops.core.datastore.model.DarkThemeConfig
-import com.pepul.shops.core.datastore.model.ThemeBrand
+import space.banterbox.core.datastore.UserData
+import space.banterbox.core.datastore.model.DarkThemeConfig
+import space.banterbox.core.datastore.model.ThemeBrand
 import space.banterbox.app.core.domain.model.LoginUser
-import space.banterbox.app.feature.onboard.presentation.components.OnboardStep
 import kotlinx.coroutines.flow.Flow
 
 interface UserDataRepository {
@@ -21,17 +20,9 @@ interface UserDataRepository {
 
     suspend fun updateUnreadNotificationCount(count: Int)
 
-    suspend fun updateUserPinCode(pinCode: String, areaName: String)
-
     suspend fun updateProfileName(name: String)
 
-    suspend fun updateProfileThumb(imageName: String)
-
     suspend fun updateProfileImage(imageName: String)
-
-    suspend fun updateCartCount(count: Int)
-
-    suspend fun updateVideoMuteStatus(muted: Boolean)
 
     suspend fun setShouldUpdateProfileOnce(shouldUpdate: Boolean)
 

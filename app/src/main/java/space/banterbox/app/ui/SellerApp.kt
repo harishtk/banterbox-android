@@ -144,8 +144,6 @@ fun SellerApp(
                     // TODO: show settings dialog
                 }
 
-                val shopData by sharedViewModel.shopData.collectAsStateWithLifecycle()
-
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
 
@@ -169,7 +167,7 @@ fun SellerApp(
                         ) {
                             /* Drawer Content */
                             ShopsNavigationDrawer(
-                                shopData = shopData,
+                                shopData = ShopData.sample(),
                                 destinations = appState.navigationDrawerDestinations,
                                 onNavigateToDestination = { destination ->
                                     appState.navigateToDrawerDestination(destination)
@@ -259,7 +257,7 @@ fun SellerApp(
                                             .shadow(4.dp),
                                         title = @Composable {
                                             Text(
-                                                text = shopData.name,
+                                                text = "Name",
                                                 style = MaterialTheme.typography.titleMedium
                                                     .copy(fontWeight = FontWeight.W700)
                                             )

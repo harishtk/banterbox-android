@@ -29,6 +29,7 @@ import space.banterbox.app.core.net.TokenAuthenticator
 import space.banterbox.app.core.persistence.PersistentStore
 import space.banterbox.app.eventbus.UnAuthorizedEvent
 import space.banterbox.app.feature.onboard.data.source.remote.AuthApi
+import space.banterbox.app.feature.onboard.data.source.remote.AuthRemoteDataSource
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -78,7 +79,7 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideOkhttpClient(
-        authApi: AuthApi,
+        authRemoteDataSource: AuthRemoteDataSource,
         persistentStore: PersistentStore,
     ): OkHttpClient {
         val okHttpClientBuilder = OkHttpClient.Builder()
@@ -105,7 +106,7 @@ object NetworkModule {
         )
         okHttpClientBuilder.authenticator(
             TokenAuthenticator(
-                api = authApi,
+                authRemoteDataSource,
                 store = persistentStore
             )
         )

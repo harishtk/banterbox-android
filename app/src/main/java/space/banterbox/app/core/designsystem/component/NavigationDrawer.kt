@@ -128,7 +128,7 @@ private fun StoreDecoration(
         mutableStateOf(IntSize(0, 0))
     }
 
-    BoxWithConstraints {
+    Box {
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,

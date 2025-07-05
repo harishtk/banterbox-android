@@ -1,13 +1,12 @@
 package space.banterbox.app.core.data.repository
 
-import com.pepul.shops.core.analytics.AnalyticsLogger
-import com.pepul.shops.core.common.concurrent.AiaDispatchers
-import com.pepul.shops.core.common.concurrent.Dispatcher
-import com.pepul.shops.core.datastore.PsPreferencesDataSource
-import com.pepul.shops.core.datastore.UserData
-import com.pepul.shops.core.datastore.model.DarkThemeConfig
-import com.pepul.shops.core.datastore.model.ThemeBrand
-import space.banterbox.app.common.util.logging.Log
+import space.banterbox.core.analytics.AnalyticsLogger
+import space.banterbox.core.common.concurrent.AiaDispatchers
+import space.banterbox.core.common.concurrent.Dispatcher
+import space.banterbox.core.datastore.PsPreferencesDataSource
+import space.banterbox.core.datastore.UserData
+import space.banterbox.core.datastore.model.DarkThemeConfig
+import space.banterbox.core.datastore.model.ThemeBrand
 import space.banterbox.app.core.domain.model.LoginUser
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,7 +20,7 @@ import javax.inject.Singleton
 class DefaultUserDataRepository @Inject constructor(
     private val psPreferencesDataSource: PsPreferencesDataSource,
     private val analyticsLogger: AnalyticsLogger,
-    @Dispatcher(AiaDispatchers.Io)
+    @param:Dispatcher(AiaDispatchers.Io)
     private val dispatcher: CoroutineDispatcher,
 ) : UserDataRepository {
 
@@ -35,8 +34,8 @@ class DefaultUserDataRepository @Inject constructor(
         } else {
             with(psPreferencesDataSource) {
                 psPreferencesDataSource.setUserId(userData.userId)
-                psPreferencesDataSource.setProfileName(userData.profileName)
-                psPreferencesDataSource.setProfileThumb(userData.profileThumb)
+                psPreferencesDataSource.setUsername(userData.username)
+                psPreferencesDataSource.setDisplayName(userData.profileName)
                 setProfileImage(userData.profileImage)
                 psPreferencesDataSource.setUnreadNotificationCount(userData.notificationCount)
                 psPreferencesDataSource.setOnboardStep(userData.onboardStep)
@@ -48,29 +47,12 @@ class DefaultUserDataRepository @Inject constructor(
         psPreferencesDataSource.setUnreadNotificationCount(count)
     }
 
-    override suspend fun updateUserPinCode(pinCode: String, areaName: String) = withContext(dispatcher) {
-        psPreferencesDataSource.setPinCode(pinCode)
-        psPreferencesDataSource.setArea(areaName)
-    }
-
     override suspend fun updateProfileName(name: String) = withContext(dispatcher) {
-        psPreferencesDataSource.setProfileName(name)
+        psPreferencesDataSource.setDisplayName(name)
     }
 
     override suspend fun updateProfileImage(imageName: String) = withContext(dispatcher) {
         psPreferencesDataSource.setProfileImage(imageName)
-    }
-
-    override suspend fun updateProfileThumb(imageName: String) = withContext(dispatcher) {
-        psPreferencesDataSource.setProfileThumb(imageName)
-    }
-
-    override suspend fun updateCartCount(count: Int) {
-        psPreferencesDataSource.updateCartCount(count)
-    }
-
-    override suspend fun updateVideoMuteStatus(muted: Boolean) {
-        psPreferencesDataSource.setAudioMuted(muted)
     }
 
     override suspend fun setShouldUpdateProfileOnce(shouldUpdate: Boolean) {

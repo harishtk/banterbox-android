@@ -27,12 +27,14 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -141,6 +143,7 @@ import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import space.banterbox.app.common.util.UiText
 import space.banterbox.app.core.designsystem.component.text.PasswordFieldState
 import space.banterbox.app.core.designsystem.component.text.UsernameFieldState
 import space.banterbox.app.core.designsystem.component.text.UsernameFieldStateSaver
@@ -207,22 +210,17 @@ internal fun LoginRoute(
     )
 
     if (uiState.isLoginSuccessful) {
-        val message = stringResource(id = R.string.otp_sent_successfully)
-//        LaunchedEffect(key1 = uiState.isLoginSuccessful) {
-//            val phone = uiState.typedPhone
-//            val countryCode = uiState.countryCodeModel.dialcode
-//                .replace(Regex("\\W"), "")
-//            val accountType = uiState.accountType
-//
+        // val message = stringResource(id = R.string.otp_sent_successfully)
+        LaunchedEffect(key1 = uiState.isLoginSuccessful) {
 //            onboardSharedViewModel.setAccountData(
 //                phone = phone, countryCode = countryCode, accountType = accountType
 //            )
-//
-//            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-//            delay(500)
-//            viewModel.resetOtpSent()
-//            onNextPage()
-//        }
+
+            // Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            delay(500)
+            viewModel.resetOtpSent()
+            // onNextPage()
+        }
     }
 
     ObserverAsEvents(flow = viewModel.uiEvent) { event ->
@@ -274,7 +272,7 @@ internal fun LoginScreen(
             .supportFoldables()
             .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHostState, Modifier.navigationBarsPadding()) },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        contentWindowInsets = WindowInsets.systemBars,
     ) { innerPadding ->
 
         val isCircularRevealVisible = remember { mutableStateOf(false) }
@@ -300,7 +298,7 @@ internal fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 AppBrand()
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.heightIn(min = 20.dp))
 
                 // Add username input
                 UsernameInput(
@@ -517,6 +515,13 @@ internal fun LoginScreen(
             when (e) {
                 is ResolvableException -> {
                     // btnGetOtp.shakeNow()
+                    val message = uiState.uiErrorMessage?.asString(context)
+                        ?: "Something went wrong"
+                    LaunchedEffect(key1 = Unit) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(message)
+                        }
+                    }
                     HapticUtil.createError(LocalContext.current)
                 }
 
@@ -588,7 +593,7 @@ private fun UsernameInput(
                 )
             },
             keyboardOptions = KeyboardOptions.Default
-                .copy(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next),
+                .copy(capitalization = KeyboardCapitalization.None, imeAction = ImeAction.Next),
             keyboardActions = KeyboardActions(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),

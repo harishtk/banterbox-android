@@ -36,7 +36,7 @@ class FileUploaderCallable(
         // .addNetworkInterceptor(progressInterceptor)
         .addInterceptor(PlatformInterceptor())
         .addInterceptor(UserAgentInterceptor())
-        .addInterceptor(JwtInterceptor())
+        .addInterceptor(JwtInterceptor { "" } )
         .addInterceptor(
             HttpLoggingInterceptor()
                 .apply {

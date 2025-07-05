@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.i18n.phonenumbers.PhoneNumberUtil
-import com.pepul.shops.core.analytics.Analytics
-import com.pepul.shops.core.analytics.AnalyticsLogger
+import space.banterbox.core.analytics.Analytics
+import space.banterbox.core.analytics.AnalyticsLogger
 import space.banterbox.app.Constant
 import space.banterbox.app.R
 import space.banterbox.app.common.util.InvalidOtpException
@@ -18,7 +18,6 @@ import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
 import space.banterbox.app.core.di.AppDependencies
 import space.banterbox.app.core.domain.model.CountryCodeModel
-import space.banterbox.app.core.domain.repository.ShopDataRepository
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.net.NoInternetException
@@ -54,7 +53,6 @@ import kotlin.time.Duration.Companion.seconds
 class OtpViewModel @Inject constructor(
     private val accountsRepository: AccountsRepository,
     private val userDataRepository: UserDataRepository,
-    private val shopDataRepository: ShopDataRepository,
     private val persistentStore: PersistentStore,
     private val analyticsLogger: AnalyticsLogger,
     savedStateHandle: SavedStateHandle
@@ -233,23 +231,14 @@ class OtpViewModel @Inject constructor(
         val type = uiState.value.accountType
 
         val request = LoginRequest(
-            phoneNumber = mobileNumber,
-            countryCode = countryCode,
-            guestUserId = 0,
-            callFor = CALL_FOR_VERIFY_OTP,
-            platform = Constant.PLATFORM,
-            fcm = fcmToken,
-            type = type
-        ).also {
-            it.otp = typedOtp
-        }
+           username = "",
+            password = ""
+        )
 
         AppDependencies.persistentStore?.apply {
             if (installReferrerFetched) {
                 val key = deepLinkKey.first
                 val value = deepLinkKey.second
-                request.utmMedium = key
-                request.utmCampaign = value
             }
         }
 
@@ -268,16 +257,9 @@ class OtpViewModel @Inject constructor(
         val type = uiState.value.accountType
 
         val request = LoginRequest(
-            phoneNumber = mobileNumber,
-            countryCode = countryCode,
-            guestUserId = 0,
-            callFor = CALL_FOR_SEND_OTP,
-            platform = Constant.PLATFORM,
-            fcm = fcmToken,
-            type = type,
-        ).also {
-            it.isResend = true
-        }
+            username = "",
+            password = ""
+        )
 
         signInApi(request)
         /*if (uiState.value.isDeleteAccountRetrieve) {
@@ -344,7 +326,7 @@ class OtpViewModel @Inject constructor(
                     }
                     is Result.Success -> {
                         setLoading(LoadType.ACTION, LoadState.NotLoading.Complete)
-                        if (request.isResend) {
+                        if (false) {
                             val retryCount = uiState.value.retryCount.plus(1)
                             _uiState.update { state ->
                                 state.copy(
@@ -362,7 +344,6 @@ class OtpViewModel @Inject constructor(
                                 setFcmTokenSynced(true)
                                 setLastTokenSyncTime(System.currentTimeMillis())
                                 setInstallReferrerFetched(false)
-                                setTempId(result.data.tempId)
                             }
                             userDataRepository.setShouldUpdateProfileOnce(result.data.showProfile)
                             setLoginData(result.data)
@@ -390,7 +371,6 @@ class OtpViewModel @Inject constructor(
             setDeviceToken(loginData.deviceToken.nullAsEmpty())
         }
         userDataRepository.setUserData(loginData.loginUser)
-        shopDataRepository.setShopData(loginData.shopData)
     }
 
     private fun setLoading(

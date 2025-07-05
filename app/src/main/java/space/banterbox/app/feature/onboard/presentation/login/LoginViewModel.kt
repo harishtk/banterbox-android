@@ -23,21 +23,31 @@ import space.banterbox.app.common.util.loadstate.LoadState
 import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
 import space.banterbox.app.core.Noop
+import space.banterbox.app.core.di.AppDependencies
+import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.net.NoInternetException
+import space.banterbox.app.core.persistence.PersistentStore
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.core.util.Result
+import space.banterbox.app.feature.onboard.domain.model.LoginData
 import space.banterbox.app.feature.onboard.domain.model.request.LoginRequest
 import space.banterbox.app.feature.onboard.domain.repository.AuthRepository
 import space.banterbox.app.feature.onboard.presentation.util.InvalidUsernameException
 import space.banterbox.app.feature.onboard.presentation.util.LoginException
 import space.banterbox.app.feature.onboard.presentation.util.RecaptchaException
+import space.banterbox.app.nullAsEmpty
+import space.banterbox.core.analytics.Analytics
+import space.banterbox.core.analytics.AnalyticsLogger
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val userDataRepository: UserDataRepository,
+    private val persistentStore: PersistentStore,
+    private val analyticsLogger: AnalyticsLogger,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -67,7 +77,7 @@ class LoginViewModel @Inject constructor(
             .filterIsInstance<LoginUiAction.TypingUsername>()
             .distinctUntilChanged()
             .onEach { action ->
-                viewModelState.update { it.copy(typedPassword = action.typedUsername) }
+                viewModelState.update { it.copy(typedUsername = action.typedUsername.trim()) }
             }
             .launchIn(viewModelScope)
 
@@ -75,7 +85,7 @@ class LoginViewModel @Inject constructor(
             .filterIsInstance<LoginUiAction.TypingPassword>()
             .distinctUntilChanged()
             .onEach { action ->
-                viewModelState.update { it.copy(typedPassword = action.typedPassword) }
+                viewModelState.update { it.copy(typedPassword = action.typedPassword.trim()) }
             }
             .launchIn(viewModelScope)
     }
@@ -116,7 +126,7 @@ class LoginViewModel @Inject constructor(
 
         // Username validation
         val username = viewModelState.value.typedUsername
-        if (!username.matches(Regex(Constant.USERNAME_PATTERN))) {
+        if (username.isBlank()) {
             val cause = InvalidUsernameException("Enter a valid username")
             addError(
                 t = ResolvableException(cause),
@@ -195,11 +205,19 @@ class LoginViewModel @Inject constructor(
                 }
                 is Result.Success -> {
                     setLoading(LoadType.ACTION, LoadState.NotLoading.Complete)
-                    viewModelState.update { state ->
-                        state.copy(
-                            isLoginSuccessful = true
-                        )
+
+                    /* CAUTION: ** order of invocation matters to satisfy the reactive conditions ** */
+                    AppDependencies.persistentStore?.apply {
+                        setFcmTokenSynced(true)
+                        setLastTokenSyncTime(System.currentTimeMillis())
+                        setInstallReferrerFetched(false)
+                        // setTempId(result.data.loginUser?.userId)
                     }
+                    // TODO: hardcoded value
+                    userDataRepository.setShouldUpdateProfileOnce(false)
+                    setLoginData(result.data)
+                    analyticsLogger.logEvent(Analytics.Event.ONBOARD_SUCCESS_EVENT)
+                    sendEvent(LoginUiEvent.ShowToast(UiText.DynamicString("Login successful")))
                 }
             }
         }
@@ -260,6 +278,21 @@ class LoginViewModel @Inject constructor(
         _uiEvent.emit(newEvent)
     }
 
+    private suspend fun setLoginData(loginData: LoginData) {
+        Timber.d("LoginData: loginUser=$loginData")
+
+        /* CAUTION! **order of invocation is important to satisfy the reactive flow ** */
+        viewModelState.update { state ->
+            state.copy(
+                isLoginSuccessful = true
+            )
+        }
+
+        persistentStore.apply {
+            setDeviceToken(loginData.deviceToken.nullAsEmpty())
+        }
+        userDataRepository.setUserData(loginData.loginUser)
+    }
 }
 
 interface LoginUiAction {

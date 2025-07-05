@@ -11,21 +11,18 @@ plugins {
     // alias(libs.plugins.firebase.crashlytics)
     // alias(libs.plugins.google.services)
     alias(libs.plugins.hilt)
-    // alias(libs.plugins.kapt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.compose)
     alias(libs.plugins.android.nav.safeargs)
-
-    kotlin("kapt")
 }
 
 object Ext {
     const val versionMajor = 0 // Major
-    const val versionMinor = 1 // Minor
+    const val versionMinor = 0 // Minor
     const val versionPatch = 1 // Patches, updates
     val versionClassifier: String? = null
-    const val versionRevision = "revision-05"
+    const val versionRevision = "revision-01"
     const val prodRevision = "rc-01"
     const val isSnapshot = false
     const val minSdk = 26
@@ -140,8 +137,8 @@ android {
         create("dev") {
             dimension = "default"
 
-            buildConfigField("String", "BASE_URL", "\"https://seller.hifrds.com\"")
-            buildConfigField("String", "API_URL", "\"https://seller.hifrds.com/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.49:8000\"")
+            buildConfigField("String", "API_URL", "\"http://192.168.1.49:8000/api/v1/\"")
             buildConfigField("String", "THUMBNAIL_BASE_URL",
                 "\"https://d1whtbopipnjq0.cloudfront.net/thumbnail/\""
             )
@@ -229,11 +226,13 @@ dependencies {
 
     /* Google */
     implementation(libs.google.material)
-    implementation(libs.google.play.core.ktx)
-    implementation(libs.google.play.services.auth)
+//    implementation(libs.google.play.core.ktx)
+//    implementation(libs.google.play.services.auth)
+    implementation(libs.google.play.review.ktx)
+    implementation(libs.google.play.appupdate.ktx)
     implementation(libs.google.android.flexbox)
     /* For Sms reader */
-    implementation(libs.google.play.services.auth.api.phone)
+//    implementation(libs.google.play.services.auth.api.phone)
 
     /* Lib PhoneNumber */
     implementation(libs.lionscribe.libphonenumber)
@@ -346,10 +345,10 @@ dependencies {
 
     // Hilt testing
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
 
     testImplementation(libs.hilt.android.testing)
-    kaptTest(libs.hilt.compiler)
+    kspTest(libs.hilt.compiler)
 
     // Coroutines testing
     testImplementation(libs.kotlinx.coroutines.test)
@@ -366,13 +365,11 @@ fun generateVersionCode(): Int {
 @SuppressWarnings("GrMethodMayBeStatic")
 fun generateVersionName(): String {
     var versionName: String = "${Ext.versionMajor}.${Ext.versionMinor}.${Ext.versionPatch}"
-    var versionClassifier: String? = Ext.versionClassifier
-    if (versionClassifier == null && Ext.isSnapshot) {
-        versionClassifier = Ext.prodRevision
+    val classifier = when {
+        Ext.versionClassifier != null -> Ext.versionClassifier
+        Ext.isSnapshot -> Ext.prodRevision
+        else -> null
     }
-
-    if (Ext.versionClassifier != null) {
-        versionName += "-" + Ext.versionClassifier
-    }
+    classifier?.let { versionName += "-$it" }
     return versionName
 }

@@ -2,21 +2,20 @@ package space.banterbox.app
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepul.shops.core.datastore.UserData
+import space.banterbox.core.datastore.UserData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import space.banterbox.app.core.domain.repository.ShopDataRepository
 import space.banterbox.app.core.domain.repository.UserDataRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
-    shopDataRepository: ShopDataRepository,
 ) : ViewModel() {
 
     private val userData = userDataRepository.userData
@@ -26,11 +25,9 @@ class MainActivityViewModel @Inject constructor(
                         old.serverUnderMaintenance == new.serverUnderMaintenance
         }
 
-    private val shopData = shopDataRepository.shopData
-        .distinctUntilChanged()
-
     val uiState: StateFlow<MainActivityUiState> = userData
         .map {
+            Timber.d("UserData: $userData")
             when {
                 // it.serverUnderMaintenance -> MainActivityUiState.Maintenance
                 it.userId.isNotBlank() -> MainActivityUiState.Success(it)

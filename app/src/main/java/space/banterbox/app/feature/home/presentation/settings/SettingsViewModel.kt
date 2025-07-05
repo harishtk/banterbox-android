@@ -2,9 +2,9 @@ package space.banterbox.app.feature.home.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pepul.shops.core.analytics.Analytics
-import com.pepul.shops.core.analytics.AnalyticsLogger
-import com.pepul.shops.core.datastore.UserData
+import space.banterbox.core.analytics.Analytics
+import space.banterbox.core.analytics.AnalyticsLogger
+import space.banterbox.core.datastore.UserData
 import space.banterbox.app.R
 import space.banterbox.app.common.util.UiText
 import space.banterbox.app.core.domain.repository.UserDataRepository
@@ -14,18 +14,15 @@ import space.banterbox.app.feature.home.presentation.util.SettingsItem
 import space.banterbox.app.feature.home.presentation.util.SettingsListType
 import space.banterbox.app.ifDebug
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -164,10 +161,7 @@ class SettingsViewModel @Inject constructor(
                     }
                     .map { settingsListData ->
                         if (settingsListData.settingsItem.id == SettingsIds.ChangePinCode.id) {
-                            val description = userData?.pinCode?.let { code ->
-                                UiText.StringResource(R.string.your_pin_code, code)
-                            } ?: UiText.emptyString
-                            settingsListData.settingsItem.copy(description = description)
+                            settingsListData.settingsItem.copy(description = UiText.emptyString)
                         } else {
                             settingsListData.settingsItem
                         }

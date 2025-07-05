@@ -23,10 +23,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.metrics.performance.JankStats
 import androidx.profileinstaller.ProfileVerifier
 import com.google.gson.GsonBuilder
-import com.pepul.shops.core.analytics.AnalyticsLogger
-import com.pepul.shops.core.analytics.LocalAnalyticsLogger
-import com.pepul.shops.core.datastore.model.DarkThemeConfig
-import com.pepul.shops.core.datastore.model.ThemeBrand
+import space.banterbox.core.analytics.AnalyticsLogger
+import space.banterbox.core.analytics.LocalAnalyticsLogger
+import space.banterbox.core.datastore.model.DarkThemeConfig
+import space.banterbox.core.datastore.model.ThemeBrand
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect

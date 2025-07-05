@@ -1,7 +1,7 @@
 package space.banterbox.app.feature.onboard.data.repository
 
-import com.pepul.shops.core.common.concurrent.AiaDispatchers
-import com.pepul.shops.core.common.concurrent.Dispatcher
+import space.banterbox.core.common.concurrent.AiaDispatchers
+import space.banterbox.core.common.concurrent.Dispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import space.banterbox.app.core.di.ApplicationCoroutineScope
