@@ -15,19 +15,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -92,13 +89,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import space.banterbox.app.ObserverAsEvents
 import space.banterbox.app.R
 import space.banterbox.app.common.util.loadstate.LoadState
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.EmptyState
 import space.banterbox.app.core.designsystem.component.EmptyStateView
 import space.banterbox.app.core.designsystem.component.LoadingButton
 import space.banterbox.app.core.designsystem.component.LoadingButtonState
 import space.banterbox.app.core.designsystem.component.LoadingState
-import space.banterbox.app.core.designsystem.component.ShopsBackground
+import space.banterbox.app.core.designsystem.component.BanterboxBackground
 import space.banterbox.app.core.designsystem.component.ThemePreviews
 import space.banterbox.app.core.designsystem.component.text.TextFieldState
 import space.banterbox.app.core.net.NoInternetException
@@ -541,7 +538,7 @@ private fun StoreCategoryInput(
             },
             suffix = {
                 Icon(
-                    imageVector = ShopsSellerIcons.ChevronRight,
+                    imageVector = BanterboxSellerIcons.ChevronRight,
                     contentDescription = "Expand",
                     modifier = Modifier.rotate(90f)
                 )
@@ -623,7 +620,7 @@ private fun StoreCategoryInput(
             },
             suffix = {
                 Icon(
-                    imageVector = ShopsSellerIcons.ChevronRight,
+                    imageVector = BanterboxSellerIcons.ChevronRight,
                     contentDescription = "Expand",
                     modifier = Modifier.rotate(90f)
                 )
@@ -919,7 +916,7 @@ fun TextFieldError(textError: String) {
 @ThemePreviews
 private fun AddStoreScreenPreview() {
     BanterboxTheme {
-        ShopsBackground {
+        BanterboxBackground {
             AddStoreScreen(
                 addStoreUiState = AddStoreUiState(),
                 storeCategoriesUiState = StoreCategoriesUiState.Idle,

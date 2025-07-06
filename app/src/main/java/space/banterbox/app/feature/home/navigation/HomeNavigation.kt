@@ -20,11 +20,13 @@ import space.banterbox.app.feature.home.presentation.create.CreateRoute
 import space.banterbox.app.feature.home.presentation.insights.InsightsRoute
 import space.banterbox.app.feature.home.presentation.inventory.InventoryRoute
 import space.banterbox.app.feature.home.presentation.landing.HomeRoute
+import space.banterbox.app.feature.home.presentation.profile.ProfileRoute
 import space.banterbox.app.feature.home.presentation.settings.SettingsRoute
 import space.banterbox.app.feature.home.presentation.webview.WebPageRoute
 
 const val HOME_GRAPH_ROUTE_PATTERN = "home_graph"
 const val SETTINGS_GRAPH_ROUTE_PATTERN = "settings_graph"
+const val PROFILE_GRAPH_ROUTE_PATTERN = "profile_graph"
 
 const val FIRST_LOG_IN = "firstLogin"
 
@@ -34,6 +36,7 @@ const val insightsOverviewNavigationRoute = "insights_overview_route"
 const val createNavigationRoute = "create_route"
 const val inventoryNavigationRoute = "inventory_route"
 const val adminNavigationRoute = "admin_route"
+const val profileNavigationRoute = "profile_route"
 
 const val webPageNavigationRoute = "web_page_route?url={url}"
 const val settingsNavigationRoute = "settings_route"
@@ -45,6 +48,10 @@ private const val DEEP_LINK_URI_PATTERN =
 
 fun NavController.navigateToHome(navOptions: NavOptions? = null) {
     this.navigate(homeNavigationRoute, navOptions)
+}
+
+fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
+    this.navigate(profileNavigationRoute, navOptions)
 }
 
 fun NavController.navigateToInsights(navOptions: NavOptions? = null) {
@@ -189,6 +196,27 @@ fun NavGraphBuilder.homeGraph(
         ) {
             AdminRoute()
         }
+        nestedGraphs()
+    }
+}
+
+fun NavGraphBuilder.profileGraph(
+    startDestination: String = profileNavigationRoute,
+    navController: NavController,
+    onBackClick: () -> Unit,
+    nestedGraphs: NavGraphBuilder.() -> Unit = {},
+) {
+    navigation(
+        route = PROFILE_GRAPH_ROUTE_PATTERN,
+        startDestination = startDestination,
+    ) {
+        composable(
+            route = profileNavigationRoute,
+            deepLinks = listOf(navDeepLink { uriPattern = "seller://profile" })
+        ) {
+            ProfileRoute()
+        }
+
         nestedGraphs()
     }
 }

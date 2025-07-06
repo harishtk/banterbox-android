@@ -2,10 +2,8 @@ package space.banterbox.app.feature.onboard.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -28,8 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,16 +39,10 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import space.banterbox.app.R
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
-import space.banterbox.app.core.designsystem.component.ShopsBackground
-import space.banterbox.app.core.designsystem.component.ThemePreviews
-import space.banterbox.app.core.designsystem.exposeBounds
-import space.banterbox.app.feature.onboard.navigation.onboardSuccessNavigationRoute
-import space.banterbox.app.ui.DevicePreviews
-import space.banterbox.app.ui.insetLarge
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
+import space.banterbox.app.core.designsystem.component.BanterboxBackground
 import space.banterbox.app.ui.insetMedium
 import space.banterbox.app.ui.insetSmall
-import space.banterbox.app.ui.insetVeryLarge
 import space.banterbox.app.ui.insetVerySmall
 import space.banterbox.app.ui.theme.BanterboxTheme
 
@@ -215,7 +204,7 @@ fun OnboardStepHeader(
                                         }
                                         OnboardStepProgress.Completed -> {
                                             Icon(
-                                                imageVector = ShopsSellerIcons.Check,
+                                                imageVector = BanterboxSellerIcons.Check,
                                                 contentDescription = "Done",
                                                 tint = MaterialTheme.colorScheme.onPrimary
                                             )
@@ -249,7 +238,7 @@ fun OnboardStepHeader(
 /*@DevicePreviews*/
 private fun OnboardStepHeaderPreview() {
     BanterboxTheme {
-        ShopsBackground {
+        BanterboxBackground {
             OnboardStepHeader(
                 currentStep = OnboardStep.BankDetail
             )

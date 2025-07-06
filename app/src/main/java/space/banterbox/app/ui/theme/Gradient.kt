@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import javax.annotation.concurrent.Immutable
 
 /**
- * A class to model gradient color values for Seller Shops.
+ * A class to model gradient color values for Seller Banterbox.
  *
  * @param top The top gradient color to be rendered.
  * @param bottom The bottom gradient color to be rendered.

@@ -68,12 +68,12 @@ import space.banterbox.app.UserViewModel
 import space.banterbox.app.common.util.InvalidOtpException
 import space.banterbox.app.common.util.ResolvableException
 import space.banterbox.app.common.util.loadstate.LoadState
-import space.banterbox.app.core.designsystem.ShopsTopAppBarState
-import space.banterbox.app.core.designsystem.component.BestDealsTopAppBar
+import space.banterbox.app.core.designsystem.BanterboxTopAppBarState
+import space.banterbox.app.core.designsystem.component.BanterboxTopAppBar
 import space.banterbox.app.core.designsystem.component.LoadingButton
 import space.banterbox.app.core.designsystem.component.LoadingButtonState
 import space.banterbox.app.core.designsystem.component.LoadingState
-import space.banterbox.app.core.designsystem.component.ShopsBackground
+import space.banterbox.app.core.designsystem.component.BanterboxBackground
 import space.banterbox.app.core.designsystem.component.text.OtpFieldState
 import space.banterbox.app.core.designsystem.component.text.OtpFieldStateSaver
 import space.banterbox.app.core.designsystem.component.text.OtpTextField
@@ -215,7 +215,7 @@ internal fun OtpScreen(
     val otpFocusRequester = remember { FocusRequester() }
 
     val topAppBarState = remember {
-        ShopsTopAppBarState(
+        BanterboxTopAppBarState(
             title = "",
             showNavigationIcon = true,
             onNavigationIconClick = { onNavUp() }
@@ -227,7 +227,7 @@ internal fun OtpScreen(
             .fillMaxSize()
             .imePadding(),
         topBar = {
-            BestDealsTopAppBar(
+            BanterboxTopAppBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent),
@@ -509,7 +509,7 @@ private fun setupOtpReceiver(
 private fun OtpScreenPreview() {
     Box {
         BanterboxTheme {
-            ShopsBackground {
+            BanterboxBackground {
                 OtpScreen()
             }
         }

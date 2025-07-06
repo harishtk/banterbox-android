@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,7 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -56,7 +55,6 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -71,17 +69,15 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import space.banterbox.app.R
 import space.banterbox.app.SharedViewModel
 import space.banterbox.app.core.designsystem.LocalWindowSizeClass
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.DefaultNavigationDrawer
-import space.banterbox.app.core.designsystem.component.ShopsBackground
-import space.banterbox.app.core.designsystem.component.ShopsGradientBackground
-import space.banterbox.app.core.designsystem.component.ShopsNavigationBar
-import space.banterbox.app.core.designsystem.component.ShopsNavigationBarItem
-import space.banterbox.app.core.designsystem.component.ShopsTopAppBar
+import space.banterbox.app.core.designsystem.component.BanterboxBackground
+import space.banterbox.app.core.designsystem.component.BanterboxGradientBackground
+import space.banterbox.app.core.designsystem.component.BanterboxTopAppBar
 import space.banterbox.app.core.domain.model.ShopData
 import space.banterbox.app.core.util.NetworkMonitor
 import space.banterbox.app.navigation.NavigationDrawerDestination
-import space.banterbox.app.navigation.ShopsNavHost
+import space.banterbox.app.navigation.BanterboxNavHost
 import space.banterbox.app.navigation.TopLevelDestination
 import space.banterbox.app.ui.theme.GradientColors
 import space.banterbox.app.ui.theme.LocalGradientColors
@@ -107,7 +103,7 @@ fun SellerApp(
     startDestination: String,
 ) {
     Timber.d("NavHost: startDestination=$startDestination")
-    val shouldShowGradientBackground = false
+    val shouldShowGradientBackground = true
     /*appState.currentTopLevelDestination == TopLevelDestination.HOME*/
 
     var showSettingsDialog by rememberSaveable {
@@ -117,8 +113,8 @@ fun SellerApp(
     CompositionLocalProvider(
         LocalWindowSizeClass provides appState.windowSizeClass
     ) {
-        ShopsBackground {
-            ShopsGradientBackground(
+        BanterboxBackground {
+            BanterboxGradientBackground(
                 gradientColors = if (shouldShowGradientBackground) {
                     LocalGradientColors.current
                 } else {
@@ -166,7 +162,7 @@ fun SellerApp(
                             modifier = Modifier
                         ) {
                             /* Drawer Content */
-                            ShopsNavigationDrawer(
+                            BanterboxNavigationDrawer(
                                 shopData = ShopData.sample(),
                                 destinations = appState.navigationDrawerDestinations,
                                 onNavigateToDestination = { destination ->
@@ -178,7 +174,7 @@ fun SellerApp(
                                     }
                                 },
                                 currentDestination = appState.currentDestination,
-                                modifier = Modifier.testTag("ShopsNavigationDrawer")
+                                modifier = Modifier.testTag("BanterboxNavigationDrawer")
                             )
                         }
                     },
@@ -211,11 +207,11 @@ fun SellerApp(
                                     )
                                 ),
                             ) {
-                                ShopsBottomBar(
+                                BanterboxBottomBar(
                                     destinations = appState.topLevelDestinations,
                                     onNavigateToDestination = appState::navigateToTopLevelDestination,
                                     currentDestination = appState.currentDestination,
-                                    modifier = Modifier.testTag("ShopsBottomBar"),
+                                    modifier = Modifier.testTag("BanterboxBottomBar"),
                                 )
                             }
                         },
@@ -238,12 +234,12 @@ fun SellerApp(
                             )*/,
                         ) {
                             if (appState.shouldShowNavRail) {
-                                ShopsNavRail(
+                                BanterboxNavRail(
                                     destinations = appState.topLevelDestinations,
                                     onNavigateToDestination = appState::navigateToTopLevelDestination,
                                     currentDestination = appState.currentDestination,
                                     modifier = Modifier
-                                        .testTag("ShopsNavRail")
+                                        .testTag("BanterboxNavRail")
                                         .safeDrawingPadding(),
                                 )
                             }
@@ -252,7 +248,7 @@ fun SellerApp(
                                 // Show the top app bar on top level destinations.
                                 val destination = appState.currentTopLevelDestination
                                 if (destination != null) {
-                                    ShopsTopAppBar(
+                                    BanterboxTopAppBar(
                                         modifier = Modifier
                                             .shadow(4.dp),
                                         title = @Composable {
@@ -271,7 +267,7 @@ fun SellerApp(
                                                 }
                                             }) {
                                                 Icon(
-                                                    painter = painterResource(id = ShopsSellerIcons.Id_Breadcrumbs),
+                                                    painter = painterResource(id = BanterboxSellerIcons.Id_Breadcrumbs),
                                                     contentDescription = "Open Drawer",
                                                     tint = MaterialTheme.colorScheme.onSurface,
                                                 )
@@ -280,7 +276,7 @@ fun SellerApp(
                                         actions = {
                                             IconButton(onClick = {}) {
                                                 Icon(
-                                                    imageVector = ShopsSellerIcons.MoreVert,
+                                                    imageVector = BanterboxSellerIcons.MoreVert,
                                                     contentDescription = "Options",
                                                     tint = MaterialTheme.colorScheme.onSurface,
                                                 )
@@ -289,7 +285,7 @@ fun SellerApp(
                                     )
                                 }
 
-                                ShopsNavHost(
+                                BanterboxNavHost(
                                     modifier = Modifier.weight(1F),
                                     appState = appState,
                                     onShowSnackBar = { message, action ->
@@ -361,17 +357,17 @@ fun SellerApp(
 
 @Deprecated("Not yet implemented")
 @Composable
-private fun ShopsNavRail(
+private fun BanterboxNavRail(
     destinations: List<TopLevelDestination>,
     onNavigateToDestination: (TopLevelDestination) -> Unit,
     currentDestination: NavDestination?,
     modifier: Modifier = Modifier,
 ) {
-    /*ShopsNavigationRail(modifier) {
+    /*BanterboxNavigationRail(modifier) {
         destinations.forEach { destination ->
             val hasUnread = true
             val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
-            ShopsNavigationRailItem(
+            BanterboxNavigationRailItem(
                 selected = selected,
                 onClick = { onNavigateToDestination(destination) },
                 icon = {
@@ -394,13 +390,13 @@ private fun ShopsNavRail(
 }
 
 @Composable
-private fun ShopsBottomBar(
+private fun BanterboxBottomBar(
     destinations: List<TopLevelDestination>,
     onNavigateToDestination: (TopLevelDestination) -> Unit,
     currentDestination: NavDestination?,
     modifier: Modifier = Modifier,
 ) {
-    ShopsNavigationBar(
+    NavigationBar(
         modifier = modifier,
     ) {
         destinations.forEach { destination ->
@@ -408,38 +404,40 @@ private fun ShopsBottomBar(
             val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
 
             if (destination.titleTextId == null) {
-                ShopsNavigationBarItem(
+                NavigationBarItem(
                     selected = selected,
                     onClick = { onNavigateToDestination(destination) },
                     icon = {
-                        Icon(
-                            painter = painterResource(id = destination.unselectedIcon),
-                            contentDescription = null,
-                        )
-                    },
-                    selectedIcon = {
-                        Icon(
-                            painter = painterResource(id = destination.selectedIcon),
-                            contentDescription = null,
-                        )
+                        if (selected) {
+                            Icon(
+                                painter = painterResource(id = destination.selectedIcon),
+                                contentDescription = null,
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(id = destination.unselectedIcon),
+                                contentDescription = null,
+                            )
+                        }
                     },
                     modifier = if (hasUnread) Modifier.notificationDot() else modifier,
                 )
             } else {
-                ShopsNavigationBarItem(
+                NavigationBarItem(
                     selected = selected,
                     onClick = { onNavigateToDestination(destination) },
                     icon = {
-                        Icon(
-                            painter = painterResource(id = destination.unselectedIcon),
-                            contentDescription = null,
-                        )
-                    },
-                    selectedIcon = {
-                        Icon(
-                            painter = painterResource(id = destination.selectedIcon),
-                            contentDescription = null,
-                        )
+                        if (selected) {
+                            Icon(
+                                painter = painterResource(id = destination.selectedIcon),
+                                contentDescription = null,
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(id = destination.unselectedIcon),
+                                contentDescription = null,
+                            )
+                        }
                     },
                     label = { Text(stringResource(destination.iconTextId)) },
                     modifier = if (hasUnread) Modifier.notificationDot() else modifier,
@@ -450,7 +448,7 @@ private fun ShopsBottomBar(
 }
 
 @Composable
-private fun ShopsNavigationDrawer(
+private fun BanterboxNavigationDrawer(
     shopData: ShopData,
     destinations: List<NavigationDrawerDestination>,
     onNavigateToDestination: (NavigationDrawerDestination) -> Unit,

@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 import javax.annotation.concurrent.Immutable
 
 /**
- * A class to model background color and tonal elevation values for Shops Seller.
+ * A class to model background color and tonal elevation values for Banterbox Seller.
  */
 @Immutable
 data class TintTheme(

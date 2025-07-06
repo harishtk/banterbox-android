@@ -5,7 +5,7 @@ import androidx.compose.runtime.Stable
 import space.banterbox.app.common.util.UiText
 
 @Stable
-class ShopsTopAppBarState(
+class BanterboxTopAppBarState(
     val title: String,
     val showMoreOptions: Boolean = false,
     val onMoreOptionsClick: () -> Unit = {},

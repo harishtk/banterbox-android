@@ -64,7 +64,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.videoFrameMillis
 import space.banterbox.app.BuildConfig
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.text.TextFieldState
 import space.banterbox.app.core.designsystem.dashedBorder
 import space.banterbox.app.ifDebug
@@ -391,7 +391,7 @@ private fun ProductCategoryInput(
             },
             suffix = {
                 Icon(
-                    imageVector = ShopsSellerIcons.ChevronRight,
+                    imageVector = BanterboxSellerIcons.ChevronRight,
                     contentDescription = "Expand",
                     modifier = Modifier.rotate(90f)
                 )
@@ -882,7 +882,7 @@ private fun ProductMediaRowItem(
                 if ((sellerMediaFile.height > sellerMediaFile.width)
                     && sellerMediaFile.width >= 720 || BuildConfig.DEBUG) {
                     Icon(
-                        imageVector = ShopsSellerIcons.Hd,
+                        imageVector = BanterboxSellerIcons.Hd,
                         contentDescription = "Video quality",
                         modifier = Modifier
                             .width(mediumIconSize),
@@ -892,7 +892,7 @@ private fun ProductMediaRowItem(
 
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
-                    imageVector = ShopsSellerIcons.Play,
+                    imageVector = BanterboxSellerIcons.Play,
                     contentDescription = "Video Preview",
                     tint = Color.Black.copy(alpha = 0.5F),
                     modifier = Modifier
@@ -987,7 +987,7 @@ private fun ProductMediaPlaceHolder(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
-                painter = painterResource(id = ShopsSellerIcons.Id_PickMedia),
+                painter = painterResource(id = BanterboxSellerIcons.Id_PickMedia),
                 contentDescription = "Pick from gallery",
                 modifier = Modifier
                     .width(48.dp)

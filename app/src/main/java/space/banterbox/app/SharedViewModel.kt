@@ -24,6 +24,7 @@ import space.banterbox.app.feature.home.navigation.homeNavigationRoute
 import space.banterbox.app.feature.home.navigation.insightsNavigationRoute
 import space.banterbox.app.feature.home.navigation.insightsOverviewNavigationRoute
 import space.banterbox.app.feature.home.navigation.inventoryNavigationRoute
+import space.banterbox.app.feature.home.navigation.profileNavigationRoute
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -79,7 +80,7 @@ class SharedViewModel @Inject constructor(
     val shopsBottomAppBarState = currentDestination
         .map { destinationId ->
             val hidden = destinationId !in bottomBarDestinations
-            ShopsBottomAppBarVisibilityState(
+            BanterboxBottomAppBarVisibilityState(
                 hidden = hidden
             )
         }
@@ -90,7 +91,7 @@ class SharedViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ShopsBottomAppBarVisibilityState.Default
+            initialValue = BanterboxBottomAppBarVisibilityState.Default
         )*/
 
     /* Home feeds scroll to top signal */
@@ -116,6 +117,7 @@ class SharedViewModel @Inject constructor(
 val bottomBarDestinations: List<String> =
     listOf(
         homeNavigationRoute,
+        profileNavigationRoute,
         insightsNavigationRoute,
         insightsOverviewNavigationRoute,
         createNavigationRoute,

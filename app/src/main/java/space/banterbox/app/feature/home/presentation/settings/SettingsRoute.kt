@@ -66,9 +66,9 @@ import space.banterbox.app.Constant
 import space.banterbox.app.ObserverAsEvents
 import space.banterbox.app.R
 import space.banterbox.app.common.util.UiText
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
-import space.banterbox.app.core.designsystem.ShopsTopAppBarState
-import space.banterbox.app.core.designsystem.component.BestDealsTopAppBar
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxTopAppBarState
+import space.banterbox.app.core.designsystem.component.BanterboxTopAppBar
 import space.banterbox.app.core.designsystem.component.LoadingDialog
 import space.banterbox.app.feature.home.presentation.util.SettingsItem
 import space.banterbox.app.feature.home.presentation.util.SettingsListType
@@ -76,8 +76,8 @@ import space.banterbox.app.showToast
 import space.banterbox.app.ui.insetSmall
 import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.MaterialColor
-import space.banterbox.app.ui.theme.ShopsDarkGreen
-import space.banterbox.app.ui.theme.ShopsGreen
+import space.banterbox.app.ui.theme.BanterboxDarkGreen
+import space.banterbox.app.ui.theme.BanterboxGreen
 import timber.log.Timber
 
 @Immutable
@@ -131,7 +131,7 @@ private fun SettingsScreen(
 
     val title = stringResource(R.string.label_settings)
     val topAppBarState = remember {
-        ShopsTopAppBarState(
+        BanterboxTopAppBarState(
             title = title,
             showNavigationIcon = true,
             onNavigationIconClick = onNavUp
@@ -145,10 +145,10 @@ private fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState, Modifier.navigationBarsPadding()) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            BestDealsTopAppBar(state = topAppBarState)
+            BanterboxTopAppBar(state = topAppBarState)
         },
         bottomBar = {
-            val brush = Brush.linearGradient(colors = listOf(ShopsGreen, ShopsDarkGreen))
+            val brush = Brush.linearGradient(colors = listOf(BanterboxGreen, BanterboxDarkGreen))
 
             val appName = stringResource(R.string.app_name)
             val version = "v${BuildConfig.VERSION_NAME}"
@@ -278,10 +278,6 @@ private fun ColumnScope.SettingsListView(
         items(settingsItemsHolder.items, key = { it.id }) { item ->
             SettingsItemRow(settingsItem = item) { settingsItem ->
                 when (SettingsIds.fromId(settingsItem.id)) {
-                    SettingsIds.ChangePinCode -> {
-                        /* no-op */
-                    }
-
                     SettingsIds.Faq -> {
                         onOpenWebPage(Constant.FAQ_URL)
                     }
@@ -374,7 +370,7 @@ private fun SettingsItemRow(
                 Spacer(modifier = modifier.weight(1f))
                 Column(modifier = Modifier.padding(horizontal = 8.dp)) {
                     Icon(
-                        imageVector = ShopsSellerIcons.ChevronRight,
+                        imageVector = BanterboxSellerIcons.ChevronRight,
                         contentDescription = "View more",
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(28.dp)

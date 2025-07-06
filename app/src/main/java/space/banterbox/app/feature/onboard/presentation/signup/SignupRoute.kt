@@ -1,6 +1,8 @@
 package space.banterbox.app.feature.onboard.presentation.signup
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -70,6 +72,8 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.UiMode
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,6 +99,7 @@ import space.banterbox.app.feature.onboard.presentation.components.forms.Display
 import space.banterbox.app.feature.onboard.presentation.components.forms.DisplayNameStateSaver
 import space.banterbox.app.feature.onboard.presentation.login.ConfirmBackPressDialog
 import space.banterbox.app.showToast
+import space.banterbox.app.ui.ThemePreviews
 import space.banterbox.app.ui.cornerSizeMedium
 import space.banterbox.app.ui.defaultSpacerSize
 import space.banterbox.app.ui.insetMedium
@@ -167,8 +172,7 @@ private fun SignupScreen(
 
     Scaffold(
         modifier = modifier
-            .fillMaxSize()
-            .imePadding(),
+            .fillMaxSize(),
         snackbarHost = { SnackbarHost(snacbarHostState, Modifier.navigationBarsPadding()) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
@@ -187,7 +191,8 @@ private fun SignupScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f, fill = true)
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .imePadding(),
             ) {
 
                 when (uiState) {
@@ -384,13 +389,6 @@ private fun UsernameInput(
             style = MaterialTheme.typography.titleMedium,
         )
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = usernameState.text,
             onValueChange = { text ->
@@ -422,7 +420,6 @@ private fun UsernameInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = usernameState.showErrors(),
             modifier = Modifier
@@ -476,13 +473,6 @@ private fun PasswordInput(
 
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = passwordState.text,
             onValueChange = { text ->
@@ -514,7 +504,6 @@ private fun PasswordInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = passwordState.showErrors(),
             trailingIcon = {
@@ -565,13 +554,6 @@ private fun ConfirmPasswordInput(
     ) {
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = passwordState.text,
             onValueChange = { text ->
@@ -603,7 +585,6 @@ private fun ConfirmPasswordInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = passwordState.showErrors(),
             trailingIcon = {
@@ -667,13 +648,6 @@ private fun DisplayNameInput(
             style = MaterialTheme.typography.titleMedium,
         )
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = displayNameState.text,
             onValueChange = { text ->
@@ -705,7 +679,6 @@ private fun DisplayNameInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = displayNameState.showErrors(),
             modifier = Modifier
@@ -757,13 +730,6 @@ private fun BioInput(
             style = MaterialTheme.typography.titleMedium,
         )
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = bioState.text,
             onValueChange = { text ->
@@ -795,7 +761,6 @@ private fun BioInput(
             },
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = bioState.showErrors(),
             modifier = Modifier
@@ -914,10 +879,15 @@ private fun SignupSuccessLayout(
     }
 }
 
-@Preview
+@Preview(showBackground = false,
+    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
+)
+// @ThemePreviews
 @Composable
 private fun SignupScreenPreview() {
-    BanterboxTheme {
+    BanterboxTheme(
+        disableDynamicTheming = false
+    ) {
         SignupScreen(
             uiState = SignupUiState.SignupForm("", "", "", ""),
             uiAction = {},

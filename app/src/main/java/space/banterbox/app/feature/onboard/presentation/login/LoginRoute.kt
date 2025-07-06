@@ -2,7 +2,6 @@
 
 package space.banterbox.app.feature.onboard.presentation.login
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -55,7 +54,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalAbsoluteTonalElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -82,7 +80,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -99,7 +96,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Devices
@@ -113,15 +109,14 @@ import space.banterbox.app.R
 import space.banterbox.app.common.util.HapticUtil
 import space.banterbox.app.common.util.ResolvableException
 import space.banterbox.app.common.util.loadstate.LoadState
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.VerticalDivider
 import space.banterbox.app.core.designsystem.autoFill
 import space.banterbox.app.core.designsystem.component.LoadingButton
 import space.banterbox.app.core.designsystem.component.LoadingButtonState
 import space.banterbox.app.core.designsystem.component.LoadingState
-import space.banterbox.app.core.designsystem.component.ShopsBackground
+import space.banterbox.app.core.designsystem.component.BanterboxBackground
 import space.banterbox.app.core.designsystem.component.animation.circularReveal
-import space.banterbox.app.core.designsystem.component.text.PhoneNumberState
 import space.banterbox.app.core.designsystem.component.text.TextFieldState
 import space.banterbox.app.core.designsystem.supportFoldables
 import space.banterbox.app.core.domain.model.CountryCodeModel
@@ -134,7 +129,6 @@ import space.banterbox.app.feature.onboard.presentation.util.RecaptchaException
 import space.banterbox.app.getEmoji
 import space.banterbox.app.nullAsEmpty
 import space.banterbox.app.showToast
-import space.banterbox.app.ui.DevicePreviews
 import space.banterbox.app.ui.insetMedium
 import space.banterbox.app.ui.insetSmall
 import space.banterbox.app.ui.insetVeryLarge
@@ -143,16 +137,11 @@ import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import space.banterbox.app.common.util.UiText
 import space.banterbox.app.core.designsystem.component.text.PasswordFieldState
 import space.banterbox.app.core.designsystem.component.forms.UsernameFieldState
 import space.banterbox.app.core.designsystem.component.forms.UsernameFieldStateSaver
-import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberState
-import space.banterbox.app.feature.onboard.presentation.components.forms.AccountNumberStateSaver
 import space.banterbox.app.feature.onboard.presentation.util.LoginException
 import space.banterbox.app.ui.cornerSizeMedium
-import space.banterbox.app.ui.theme.LightGray100
-import space.banterbox.app.ui.theme.LightGray200
 import timber.log.Timber
 
 /**
@@ -272,8 +261,7 @@ internal fun LoginScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .supportFoldables()
-            .imePadding(),
+            .supportFoldables(),
         snackbarHost = { SnackbarHost(snackbarHostState, Modifier.navigationBarsPadding()) },
         contentWindowInsets = WindowInsets.systemBars,
     ) { innerPadding ->
@@ -296,7 +284,8 @@ internal fun LoginScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = insetVeryLarge),
+                    .padding(horizontal = insetVeryLarge)
+                    .imePadding(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -447,7 +436,7 @@ internal fun LoginScreen(
                     )
                 ) {
                     Icon(
-                        imageVector = ShopsSellerIcons.Check,
+                        imageVector = BanterboxSellerIcons.Check,
                         contentDescription = "Success",
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
@@ -594,13 +583,6 @@ private fun UsernameInput(
         modifier = modifier
             .padding(horizontal = insetMedium, vertical = insetSmall),
     ) {
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = usernameState.text,
             onValueChange = { text ->
@@ -632,7 +614,6 @@ private fun UsernameInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = usernameState.showErrors(),
             modifier = Modifier
@@ -671,13 +652,6 @@ private fun PasswordInput(
     ) {
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-        val colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = LightGray100,
-            unfocusedContainerColor = LightGray100,
-            disabledContainerColor = LightGray100,
-            focusedBorderColor = LightGray200,
-            unfocusedBorderColor = LightGray200,
-        )
         OutlinedTextField(
             value = passwordState.text,
             onValueChange = { text ->
@@ -709,7 +683,6 @@ private fun PasswordInput(
             },*/
             textStyle = mergedTextStyle.copy(fontWeight = FontWeight.W600),
             maxLines = 1,
-            colors = colors,
             shape = RoundedCornerShape(cornerSizeMedium),
             isError = passwordState.showErrors(),
             trailingIcon = {
@@ -962,7 +935,7 @@ private fun ColumnScope.AppBrand(
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize(1F),
-                painter = painterResource(id = ShopsSellerIcons.Id_BrandFilled),
+                painter = painterResource(id = BanterboxSellerIcons.Id_BrandFilled),
                 contentDescription = "Banterbox Space",
             )
         }
@@ -1044,8 +1017,10 @@ private fun LegalLayout(
 @Composable
 private fun LoginScreenPreview() {
     Box {
-        BanterboxTheme {
-            ShopsBackground {
+        BanterboxTheme(
+            disableDynamicTheming = false,
+        ) {
+            BanterboxBackground {
                 LoginScreen()
             }
         }

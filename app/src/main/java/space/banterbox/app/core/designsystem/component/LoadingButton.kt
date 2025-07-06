@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.ui.unit.dp
 import space.banterbox.app.common.util.HapticUtil
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.animation.ShakeConfig
 import space.banterbox.app.core.designsystem.component.animation.rememberShakeController
 import space.banterbox.app.core.designsystem.component.animation.shake
@@ -132,7 +132,7 @@ fun LoadingButton(
 
                 LoadingState.Success -> {
                     Icon(
-                        imageVector = ShopsSellerIcons.Check,
+                        imageVector = BanterboxSellerIcons.Check,
                         contentDescription = "Success",
                         tint = loadingButtonState.loadingState.foreGroundColor,
                         modifier = Modifier
@@ -148,7 +148,7 @@ fun LoadingButton(
 
                 LoadingState.Failed -> {
                     Icon(
-                        imageVector = ShopsSellerIcons.Close,
+                        imageVector = BanterboxSellerIcons.Close,
                         contentDescription = "Failed",
                         tint = loadingButtonState.loadingState.foreGroundColor,
                         modifier = Modifier
@@ -221,7 +221,7 @@ fun LoadingButton(
 @DevicePreviews
 private fun LoadingButtonPreview() {
     BanterboxTheme {
-        ShopsBackground {
+        BanterboxBackground {
             val loadingState by remember {
                 mutableStateOf(
                     LoadingButtonState(

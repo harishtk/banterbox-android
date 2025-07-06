@@ -33,8 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import space.banterbox.app.Constant
-import space.banterbox.app.core.designsystem.ShopsTopAppBarState
-import space.banterbox.app.core.designsystem.component.BestDealsTopAppBar
+import space.banterbox.app.core.designsystem.BanterboxTopAppBarState
+import space.banterbox.app.core.designsystem.component.BanterboxTopAppBar
 import space.banterbox.app.ui.theme.BanterboxTheme
 import timber.log.Timber
 
@@ -47,8 +47,8 @@ internal fun WebPageRoute(
 ) {
 
     val topAppBarState = remember {
-        ShopsTopAppBarState(
-            title = "Shops near me",
+        BanterboxTopAppBarState(
+            title = "Banterbox near me",
             showNavigationIcon = true,
             onNavigationIconClick = onNavUp,
         )
@@ -66,7 +66,7 @@ internal fun WebPageRoute(
 @Composable
 internal fun WebPageScreen(
     modifier: Modifier = Modifier,
-    topAppBarState: ShopsTopAppBarState,
+    topAppBarState: BanterboxTopAppBarState,
     onNavUp: () -> Unit = {},
     url: String,
 ) {
@@ -83,7 +83,7 @@ internal fun WebPageScreen(
                 modifier = Modifier.fillMaxWidth()
                     .statusBarsPadding()
             ) {
-                BestDealsTopAppBar(state = topAppBarState)
+                BanterboxTopAppBar(state = topAppBarState)
                 Box(modifier = Modifier.height(IntrinsicSize.Min)) {
                     if (progress <= 0.99F) {
                         LinearProgressIndicator(
@@ -174,8 +174,8 @@ fun WebPageScreenPreview() {
     BoxWithConstraints {
         BanterboxTheme {
             WebPageScreen(
-                topAppBarState = ShopsTopAppBarState(
-                    title = "Shops near me",
+                topAppBarState = BanterboxTopAppBarState(
+                    title = "Banterbox near me",
                     showNavigationIcon = true,
                     onNavigationIconClick = {}
                 ),

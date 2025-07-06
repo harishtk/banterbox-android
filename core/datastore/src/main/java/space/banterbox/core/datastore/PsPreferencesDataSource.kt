@@ -154,7 +154,7 @@ class PsPreferencesDataSource @Inject constructor(
             preferences[UserPreferenceKeys.ShouldUpdateProfileOnce] = false
             preferences[UserPreferenceKeys.LastGreetedTime] = 0
             preferences[UserPreferenceKeys.ShouldShowAppRating] = false
-            preferences[UserPreferenceKeys.UseDynamicColor] = false
+            preferences[UserPreferenceKeys.UseDynamicColor] = true
             preferences[UserPreferenceKeys.ThemeBrand] = THEME_BRAND_DEFAULT
             preferences[UserPreferenceKeys.DarkThemeConfig] = DARK_THEME_CONFIG_FOLLOW_SYSTEM
             preferences[UserPreferenceKeys.OnboardStep] = ""

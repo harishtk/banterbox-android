@@ -5,12 +5,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import space.banterbox.app.feature.home.navigation.HOME_GRAPH_ROUTE_PATTERN
 import space.banterbox.app.feature.home.navigation.homeGraph
 import space.banterbox.app.feature.home.navigation.insightsGraph
 import space.banterbox.app.feature.home.navigation.navigateToWebPage
+import space.banterbox.app.feature.home.navigation.profileGraph
 import space.banterbox.app.feature.home.navigation.settingsGraph
 import space.banterbox.app.feature.home.navigation.webPageNavigationRoute
 import space.banterbox.app.feature.home.navigation.webPageScreen
@@ -21,14 +21,14 @@ import space.banterbox.app.ui.SellerAppState
 import timber.log.Timber
 
 @Composable
-fun ShopsNavHost(
+fun BanterboxNavHost(
     appState: SellerAppState,
     onShowSnackBar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
     startGraph: String = HOME_GRAPH_ROUTE_PATTERN,
     startDestination: String = "",
 ) {
-    Timber.d("ShopsNavHost() called with: appState = [$appState], onShowSnackBar = [$onShowSnackBar], modifier = [$modifier], startDestination = [$startDestination]")
+    Timber.d("BanterboxNavHost() called with: appState = [$appState], onShowSnackBar = [$onShowSnackBar], modifier = [$modifier], startDestination = [$startDestination]")
     val navController = appState.navController
 
     NavHost(
@@ -54,6 +54,11 @@ fun ShopsNavHost(
                 )
             }
         }
+
+        profileGraph(
+            navController = navController,
+            onBackClick = navController::popBackStack,
+        ) {}
 
         insightsGraph(
             navController = navController,

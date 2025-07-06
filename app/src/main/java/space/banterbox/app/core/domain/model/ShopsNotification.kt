@@ -3,7 +3,7 @@ package space.banterbox.app.core.domain.model
 import space.banterbox.app.core.data.source.local.entity.NotificationEntity
 import space.banterbox.app.toInt
 
-data class ShopsNotification(
+data class BanterboxNotification(
     val content: String,
     val timestamp: String,
     val read: Boolean,
@@ -17,7 +17,7 @@ data class ShopsNotification(
     var productId:  String? = null
 }
 
-fun ShopsNotification.asEntity(): NotificationEntity {
+fun BanterboxNotification.asEntity(): NotificationEntity {
     return NotificationEntity(
         content = content,
         timestamp = timestamp,

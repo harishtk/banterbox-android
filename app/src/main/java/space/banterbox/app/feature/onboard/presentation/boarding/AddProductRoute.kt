@@ -16,7 +16,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -90,7 +89,7 @@ import space.banterbox.app.Constant.MIME_TYPE_VIDEO
 import space.banterbox.app.ObserverAsEvents
 import space.banterbox.app.R
 import space.banterbox.app.common.util.StorageUtil
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.EmptyState
 import space.banterbox.app.core.designsystem.component.EmptyStateView
 import space.banterbox.app.core.designsystem.component.forms.AddProductForm
@@ -649,7 +648,7 @@ private fun StoragePermissionRationaleDialog(
         onDismissRequest = { onDismiss(true) },
         icon = {
             Icon(
-                painter = painterResource(id = ShopsSellerIcons.Id_FilePermission),
+                painter = painterResource(id = BanterboxSellerIcons.Id_FilePermission),
                 contentDescription = "Storage Permission Required",
                 tint = Color.Unspecified,
                 modifier = Modifier

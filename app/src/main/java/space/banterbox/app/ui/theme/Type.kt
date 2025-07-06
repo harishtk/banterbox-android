@@ -35,7 +35,7 @@ val AvenirNext = FontFamily(
     ),
 )
 
-val ShopsTypography = Typography(
+val BanterboxTypography = Typography(
     // Display Large - Montserrat 57/64 . -0.25px
     displayLarge = TextStyle(
         fontFamily = AvenirNext,

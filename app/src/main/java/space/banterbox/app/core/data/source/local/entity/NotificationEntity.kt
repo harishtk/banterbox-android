@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import space.banterbox.app.core.data.source.local.AppDatabase
-import space.banterbox.app.core.domain.model.ShopsNotification
+import space.banterbox.app.core.domain.model.BanterboxNotification
 
 @Entity(tableName = NotificationTable.name)
 data class NotificationEntity(
@@ -35,8 +35,8 @@ data class NotificationEntity(
     var productId: String? = null
 }
 
-fun NotificationEntity.toAiaNotification(): ShopsNotification {
-    return ShopsNotification(
+fun NotificationEntity.toAiaNotification(): BanterboxNotification {
+    return BanterboxNotification(
         content = content,
         timestamp = timestamp,
         read = read == 1,

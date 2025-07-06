@@ -30,7 +30,7 @@ import space.banterbox.app.R
 /**
  * Now in Android icons. Material icons are [ImageVector]s, custom icons are drawable resource IDs.
  */
-object ShopsSellerIcons {
+object BanterboxSellerIcons {
     val Add = Icons.Rounded.Add
     val ArrowBack = Icons.Rounded.ArrowBack
     val Bookmark = Icons.Rounded.Bookmark

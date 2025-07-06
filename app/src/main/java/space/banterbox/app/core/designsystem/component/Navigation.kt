@@ -23,15 +23,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.navigation.DefaultNavigationBar
 import space.banterbox.app.core.designsystem.component.navigation.DefaultNavigationBarItem
-import space.banterbox.app.core.designsystem.component.navigation.ShopsNavigationBarItemDefaults
+import space.banterbox.app.core.designsystem.component.navigation.BanterboxNavigationBarItemDefaults
 import space.banterbox.app.ui.theme.NavigationBarBackground
 import space.banterbox.app.ui.theme.BanterboxTheme
 
 @Composable
-fun RowScope.ShopsNavigationBarItem(
+fun RowScope.BanterboxNavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -49,19 +49,19 @@ fun RowScope.ShopsNavigationBarItem(
         enabled = enabled,
         label = label,
         alwaysShowLabel = alwaysShowLabel,
-        colors = ShopsNavigationBarItemDefaults.colors()
+        colors = BanterboxNavigationBarItemDefaults.colors()
     )
 }
 
 /**
- * Shops navigation bar with content slot. Wraps Material 3 [NavigationBar].
+ * Banterbox navigation bar with content slot. Wraps Material 3 [NavigationBar].
  *
  * @param modifier Modifier to be applied to the navigation bar.
  * @param content Destinations inside the navigation bar. This should contain multiple
  * [NavigationBarItem]s.
  */
 @Composable
-fun ShopsNavigationBar(
+fun BanterboxNavigationBar(
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -72,7 +72,7 @@ fun ShopsNavigationBar(
 }
 
 /**
- * Shops navigation rail item with icon and label content slots. Wraps Material 3
+ * Banterbox navigation rail item with icon and label content slots. Wraps Material 3
  * [NavigationRailItem].
  *
  * @param selected Whether this item is selected.
@@ -86,7 +86,7 @@ fun ShopsNavigationBar(
  *  * only be shown when this item is selected.
  */
 @Composable
-fun ShopsNavigationRailItem(
+fun BanterboxNavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
@@ -105,11 +105,11 @@ fun ShopsNavigationRailItem(
         label = label,
         alwaysShowLabel = alwaysShowLabel,
         colors = NavigationRailItemDefaults.colors(
-            selectedIconColor = ShopsNavigationDefaults.navigationSelectedItemColor(),
-            unselectedIconColor = ShopsNavigationDefaults.navigationContentColor(),
-            selectedTextColor = ShopsNavigationDefaults.navigationSelectedItemColor(),
-            unselectedTextColor = ShopsNavigationDefaults.navigationContentColor(),
-            indicatorColor = ShopsNavigationDefaults.navigationIndicatorColor(),
+            selectedIconColor = BanterboxNavigationDefaults.navigationSelectedItemColor(),
+            unselectedIconColor = BanterboxNavigationDefaults.navigationContentColor(),
+            selectedTextColor = BanterboxNavigationDefaults.navigationSelectedItemColor(),
+            unselectedTextColor = BanterboxNavigationDefaults.navigationContentColor(),
+            indicatorColor = BanterboxNavigationDefaults.navigationIndicatorColor(),
         )
     )
 }
@@ -123,7 +123,7 @@ fun ShopsNavigationRailItem(
  * [NavigationRailItem]s.
  */
 @Composable
-fun ShopsNavigationRail(
+fun BanterboxNavigationRail(
     modifier: Modifier = Modifier,
     header: @Composable (ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -131,16 +131,16 @@ fun ShopsNavigationRail(
     NavigationRail(
         modifier = modifier,
         containerColor = Color.Transparent,
-        contentColor = ShopsNavigationDefaults.navigationContentColor(),
+        contentColor = BanterboxNavigationDefaults.navigationContentColor(),
         header = header,
         content = content,
     )
 }
 
 /**
- * Shops navigation default values.
+ * Banterbox navigation default values.
  */
-object ShopsNavigationDefaults {
+object BanterboxNavigationDefaults {
 
     val NavigationBarHeight = 66.dp
 
@@ -170,29 +170,29 @@ object ShopsNavigationDefaults {
 
 @Preview(group = "navigation bar")
 @Composable
-fun ShopsNavigationPreview() {
+fun BanterboxNavigationPreview() {
     val items = listOf("Home", "Insights", null, "Inventory", "Admin")
     val icons = listOf(
-        ShopsSellerIcons.Id_Home_Outline,
-        ShopsSellerIcons.Id_Insights_Outline,
-        ShopsSellerIcons.Id_New,
-        ShopsSellerIcons.Id_Inventory_Outline,
-        ShopsSellerIcons.Id_Admin_Outline,
+        BanterboxSellerIcons.Id_Home_Outline,
+        BanterboxSellerIcons.Id_Insights_Outline,
+        BanterboxSellerIcons.Id_New,
+        BanterboxSellerIcons.Id_Inventory_Outline,
+        BanterboxSellerIcons.Id_Admin_Outline,
     )
     val selectedIcons = listOf(
-        ShopsSellerIcons.Id_Home_Filled,
-        ShopsSellerIcons.Id_Insights_Filled,
-        ShopsSellerIcons.Id_New,
-        ShopsSellerIcons.Id_Inventory_Filled,
-        ShopsSellerIcons.Id_Admin_Filled,
+        BanterboxSellerIcons.Id_Home_Filled,
+        BanterboxSellerIcons.Id_Insights_Filled,
+        BanterboxSellerIcons.Id_New,
+        BanterboxSellerIcons.Id_Inventory_Filled,
+        BanterboxSellerIcons.Id_Admin_Filled,
     )
 
     var selectedIndex by remember { mutableIntStateOf(0) }
 
     BanterboxTheme {
-        ShopsNavigationBar {
+        BanterboxNavigationBar {
             items.forEachIndexed { index, item ->
-                ShopsNavigationBarItem(
+                BanterboxNavigationBarItem(
                     icon = {
                         Icon(
                             painter = painterResource(id = icons[index]),
@@ -216,23 +216,23 @@ fun ShopsNavigationPreview() {
 
 @Preview
 @Composable
-fun ShopsNavigationRailPreview() {
+fun BanterboxNavigationRailPreview() {
     val items = listOf("Home", "Search", "Interests")
     val icons = listOf(
-        ShopsSellerIcons.UpcomingBorder,
-        ShopsSellerIcons.BookmarksBorder,
-        ShopsSellerIcons.Grid3x3,
+        BanterboxSellerIcons.UpcomingBorder,
+        BanterboxSellerIcons.BookmarksBorder,
+        BanterboxSellerIcons.Grid3x3,
     )
     val selectedIcons = listOf(
-        ShopsSellerIcons.Upcoming,
-        ShopsSellerIcons.Bookmarks,
-        ShopsSellerIcons.Grid3x3,
+        BanterboxSellerIcons.Upcoming,
+        BanterboxSellerIcons.Bookmarks,
+        BanterboxSellerIcons.Grid3x3,
     )
 
     BanterboxTheme {
-        ShopsNavigationRail {
+        BanterboxNavigationRail {
             items.forEachIndexed { index, item ->
-                ShopsNavigationRailItem(
+                BanterboxNavigationRailItem(
                     icon = {
                         Icon(
                             imageVector = icons[index],

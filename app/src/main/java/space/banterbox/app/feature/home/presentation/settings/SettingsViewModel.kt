@@ -29,13 +29,13 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-enum class SettingsIds(val id: Int) {
-    ChangePinCode(0), Faq(1), Feedback(2), HelpAndSupport(3), About(4),
-    Terms(5), Logout(6), Unknown(-1);
+enum class SettingsIds(val id: String) {
+    Faq("faq"), Feedback("feedback"), HelpAndSupport("support"), About("about"),
+    Terms("terms"), Logout("logout"), Unknown("");
 
     companion object {
-        fun fromId(id: Int): SettingsIds {
-            return values().firstOrNull() { it.id == id }
+        fun fromId(id: String): SettingsIds {
+            return entries.firstOrNull() { it.id == id }
                 ?: Unknown
         }
     }
@@ -47,17 +47,6 @@ data class SettingsItemWithAuthState(
 )
 
 val settingsListData = listOf(
-    SettingsItemWithAuthState(
-        settingsItem = SettingsItem(
-            settingsListType = SettingsListType.SIMPLE,
-            id = SettingsIds.ChangePinCode.id,
-            title = UiText.DynamicString("Change Pin Code"),
-            icon = null, /*R.drawable.ic_location_pin,*/
-            description = null,
-            hasMore = true,
-        ),
-        requiresLogin = true
-    ),
     /*SettingsItemWithAuthState(
         settingsItem = SettingsItem(
             settingsListType = SettingsListType.SIMPLE,
@@ -159,13 +148,7 @@ class SettingsViewModel @Inject constructor(
                     .filter {
                         !it.requiresLogin || it.requiresLogin == authenticated
                     }
-                    .map { settingsListData ->
-                        if (settingsListData.settingsItem.id == SettingsIds.ChangePinCode.id) {
-                            settingsListData.settingsItem.copy(description = UiText.emptyString)
-                        } else {
-                            settingsListData.settingsItem
-                        }
-                    }
+                    .map(SettingsItemWithAuthState::settingsItem)
             }
             .onEach { settingsItems ->
                 viewModelState.update { state ->

@@ -1,9 +1,5 @@
 package space.banterbox.app.feature.onboard.presentation.boarding
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,7 +19,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -42,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.isLiveLiteralsEnabled
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,7 +47,6 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
@@ -70,15 +63,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.room.util.convertByteToUUID
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import space.banterbox.app.R
-import space.banterbox.app.core.designsystem.component.ShopsGradientBackground
 import space.banterbox.app.core.designsystem.component.text.TextFieldState
 import space.banterbox.app.feature.onboard.presentation.components.OnboardStep
 import space.banterbox.app.feature.onboard.presentation.components.OnboardStepHeader
@@ -96,11 +86,8 @@ import space.banterbox.app.ui.insetSmall
 import space.banterbox.app.ui.insetVeryLarge
 import space.banterbox.app.ui.insetVerySmall
 import space.banterbox.app.ui.spacerSizeTiny
-import space.banterbox.app.ui.spacerSizeVerySmall
-import space.banterbox.app.ui.theme.GradientColors
 import space.banterbox.app.ui.theme.LightGray100
 import space.banterbox.app.ui.theme.LightGray200
-import space.banterbox.app.ui.theme.LocalGradientColors
 import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.TextSecondary
 

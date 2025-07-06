@@ -16,6 +16,6 @@ data class UserData(
     val shouldShowAppRating: Boolean = false,
     val themeBrand: ThemeBrand = ThemeBrand.DEFAULT,
     val darkThemeConfig: DarkThemeConfig = DarkThemeConfig.LIGHT,
-    val useDynamicColor: Boolean = false,
+    val useDynamicColor: Boolean = true,
     val isAppRatingShownAtLeastOnce: Boolean = false,
 )

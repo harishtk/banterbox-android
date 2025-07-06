@@ -5,7 +5,7 @@
     <string name="home">Home</string>
     <string name="insights">Insights</string>
     <string name="create">Create</string>
-    <string name="inventory">Inventory</string>
+    <string name="profile">Profile</string>
     <string name="admin">Admin</string>
 
     <string name="my_store">My Store</string>
@@ -88,18 +88,18 @@
     <string name="unable_to_perform_this_action">Unable to perform this action!</string>
 
     <string name="permissions_required">Permissions Required</string>
-    <string name="files_permission_des">To use this feature, we request you to allow Shops to access your media files. We assure you that this will be safe.</string>
-    <string name="files_permission_rationale_des">To use this feature, we request you to allow Shops to access your media files. We assure you that this will be safe.</string>
+    <string name="files_permission_des">To use this feature, we request you to allow Banterbox to access your media files. We assure you that this will be safe.</string>
+    <string name="files_permission_rationale_des">To use this feature, we request you to allow Banterbox to access your media files. We assure you that this will be safe.</string>
 
     <string name="camera_permission_des_short">Camera permission is required to take a photo</string>
-    <string name="camera_permission_des">To use this feature, we request you to allow Shops to access your camera. We assure you that this will be safe.</string>
-    <string name="camera_permission_rationale_des">To use this feature, we request you to allow Shops to access your camera. We assure you that this will be safe.</string>
+    <string name="camera_permission_des">To use this feature, we request you to allow Banterbox to access your camera. We assure you that this will be safe.</string>
+    <string name="camera_permission_rationale_des">To use this feature, we request you to allow Banterbox to access your camera. We assure you that this will be safe.</string>
     <!-- END - Permissions -->
 
     <!-- Notification channel based -->
     <string name="general_notifications_channel_id">shops_general_alerts</string>
     <string name="title_general_notifications">General Alerts</string>
-    <string name="desc_general_notifications">All alerts from Shops Seller App</string>
+    <string name="desc_general_notifications">All alerts from Banterbox Seller App</string>
     <!-- END - Notification channel based -->
 
     <string name="username_with_prefix"><![CDATA[\@%1$s]]></string>
@@ -111,11 +111,11 @@
     <string name="new_update">New Update</string>
     <string name="update">Update</string>
     <string name="remind_me_later">Remind me later</string>
-    <string name="app_update_des_1">Shops has a new update available! Kindly update to continue enjoying hassle free shopping.</string>
+    <string name="app_update_des_1">Banterbox has a new update available! Kindly update to continue enjoying hassle free shopping.</string>
     <string name="force_update_title">Get more with the new update</string>
     <string name="force_update_des_1">A new update has been released. Kindly update now to experience the new version.</string>
     <string name="update_now">Update Now</string>
-    <string name="new_version_available">A new version of Shops is available!</string>
+    <string name="new_version_available">A new version of Banterbox is available!</string>
     <!-- END - Force update -->
 
     <string name="something_went_wrong_try_later">Something went wrong! try again later.</string>

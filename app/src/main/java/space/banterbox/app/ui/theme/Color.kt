@@ -18,9 +18,9 @@ val Purple = Color(0xff8427c8)
 val LightGray = Color(0xfff0f0f0)
 
 /* Custom colors */
-val ShopsGreen = Color(0xff27ae60)
-val ShopsLightGreen = Color(0xff1dd38f)
-val ShopsDarkGreen = Color(0xff11512c)
+val BanterboxGreen = Color(0xff27ae60)
+val BanterboxLightGreen = Color(0xff1dd38f)
+val BanterboxDarkGreen = Color(0xff11512c)
 
 val TextSecondary = Color(0xFFA0A3A8)
 
@@ -28,6 +28,40 @@ val LightGray200 = Color(0xffdedede)
 val LightGray100 = Color(0xfffafafa)
 
 val NavigationBarBackground = Color(0xFF16171C)
+
+// Soft Teal
+internal val Mint10 = Color(0xFF00332C)
+internal val Mint20 = Color(0xFF004D40)
+internal val Mint40 = Color(0xFF80CBC4)
+internal val Mint90 = Color(0xFFA7FFEB)
+
+// Amber (warm alternative to Orange)
+internal val Amber10 = Color(0xFF4E2600)
+internal val Amber20 = Color(0xFF5D4037)
+internal val Amber40 = Color(0xFFFFB74D)
+internal val Amber90 = Color(0xFFFFE0B2)
+
+// Charcoal Backgrounds and Surfaces
+internal val Charcoal10 = Color(0xFF121212)  // Background
+internal val Charcoal20 = Color(0xFF1E1E1E)  // Surface
+internal val Charcoal30 = Color(0xFF2C2C2C)  // SurfaceVariant
+internal val Charcoal90 = Color(0xFFE0E0E0)
+internal val Charcoal95 = Color(0xFFECEFF1)
+
+// Outline Neutral
+internal val Gray60 = Color(0xFF616161)
+
+// Backgrounds
+internal val LightBackground = Color(0xFFFFFFFF)
+internal val LightOnBackground = Color(0xFF1C1B1F)
+internal val DarkBackground = Color(0xFF121212)
+internal val DarkOnBackground = Color(0xFFE6E1E5)
+
+// Surfaces
+internal val LightSurface = LightBackground
+internal val LightOnSurface = LightOnBackground
+internal val DarkSurface = DarkBackground
+internal val DarkOnSurface = DarkOnBackground
 /* END - Custom colors */
 
 internal val Blue10 = Color(0xFF001F28)
@@ -58,6 +92,8 @@ internal val Green30 = Color(0xFF005227)
 internal val Green40 = Color(0xFF006D36)
 internal val Green80 = Color(0xFF0EE37C)
 internal val Green90 = Color(0xFF5AFF9D)
+internal val GreenGray10 = Color(0xFF1A1C19)
+internal val GreenGray20 = Color(0xFF2F312D)
 internal val GreenGray30 = Color(0xFF414941)
 internal val GreenGray50 = Color(0xFF727971)
 internal val GreenGray60 = Color(0xFF8B938A)

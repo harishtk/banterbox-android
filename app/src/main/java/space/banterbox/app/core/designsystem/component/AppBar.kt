@@ -21,15 +21,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
-import space.banterbox.app.core.designsystem.ShopsTopAppBarState
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxTopAppBarState
 import space.banterbox.app.ui.theme.BanterboxTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BestDealsTopAppBar(
+fun BanterboxTopAppBar(
     modifier: Modifier = Modifier,
-    state: ShopsTopAppBarState,
+    state: BanterboxTopAppBarState,
 ) {
     Column(
         modifier = modifier
@@ -48,7 +48,7 @@ fun BestDealsTopAppBar(
                 if (state.showNavigationIcon) {
                     IconButton(onClick = state.onNavigationIconClick ) {
                         Icon(
-                            painter = painterResource(id = ShopsSellerIcons.Id_ArrowFilled),
+                            painter = painterResource(id = BanterboxSellerIcons.Id_ArrowFilled),
                             contentDescription = "Go Back",
                             tint = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier
@@ -65,7 +65,7 @@ fun BestDealsTopAppBar(
 @Composable
 @Preview(device = "id:pixel_3a", showBackground = true)
 private fun BestDealsTopAppBarPreview() {
-    val appBarState = ShopsTopAppBarState(
+    val appBarState = BanterboxTopAppBarState(
         title = "Sample Title",
         showNavigationIcon = true,
         onNavigationIconClick = {}
@@ -75,7 +75,7 @@ private fun BestDealsTopAppBarPreview() {
         Modifier.background(Color.White)
     ) {
         BanterboxTheme(darkTheme = false) {
-            BestDealsTopAppBar(state = appBarState)
+            BanterboxTopAppBar(state = appBarState)
         }
     }
 }

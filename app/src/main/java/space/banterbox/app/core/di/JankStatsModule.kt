@@ -19,7 +19,7 @@ object JankStatsModule {
             // Make sure to only log janky frames.
             if (volatileFrameData.isJank) {
                 // We're currently logging this but would better report it to a backend.
-                Log.v("Shops.Jank", volatileFrameData.toString())
+                Log.v("Banterbox.Jank", volatileFrameData.toString())
             }
         }
     }

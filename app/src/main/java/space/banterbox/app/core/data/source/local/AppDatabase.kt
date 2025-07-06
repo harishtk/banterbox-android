@@ -43,7 +43,7 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     companion object {
-        private const val DATABASE_NAME = "ShopsSeller.db"
+        private const val DATABASE_NAME = "BanterboxSeller.db"
 
         /* Tables Names */
         const val TABLE_UPLOAD_SESSION = "upload_session"

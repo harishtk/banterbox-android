@@ -36,6 +36,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import space.banterbox.app.feature.home.navigation.navigateToProfile
+import space.banterbox.app.feature.home.navigation.profileNavigationRoute
+import space.banterbox.app.feature.home.navigation.settingsNavigationRoute
 import timber.log.Timber
 
 @Composable
@@ -75,10 +78,7 @@ class SellerAppState(
     val currentTopLevelDestination: TopLevelDestination?
         @Composable get() = when (currentDestination?.route) {
             homeNavigationRoute -> HOME
-            insightsNavigationRoute -> INSIGHTS
-            createNavigationRoute -> CREATE
-            inventoryNavigationRoute -> INVENTORY
-            adminNavigationRoute -> ADMIN
+            profileNavigationRoute -> PROFILE
             else -> null
         }
 
@@ -133,10 +133,7 @@ class SellerAppState(
 
             when (topLevelDestination) {
                 HOME -> navController.navigateToHome(topLevelNavOptions)
-                INSIGHTS -> navController.navigateToInsights(topLevelNavOptions)
-                CREATE -> navController.navigateToCreate(topLevelNavOptions)
-                INVENTORY -> navController.navigateToInventory(topLevelNavOptions)
-                ADMIN -> navController.navigateToAdmin(topLevelNavOptions)
+                PROFILE -> navController.navigateToProfile(topLevelNavOptions)
             }
         }
     }
@@ -145,14 +142,6 @@ class SellerAppState(
         Timber.tag("Navigation").d("navigationDrawerDestination: ${navigationDrawerDestination.name}")
         trace("NavigationDrawer: ${navigationDrawerDestination.name}") {
             when (navigationDrawerDestination) {
-                MyStore -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Website -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Customers -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Campaigns -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Orders -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Offers -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Revenue -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
-                Analytics -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
                 Support -> navController.navigateToSampleScreen(navigationDrawerDestination.name)
                 Settings -> navController.navigateToSettings()
             }

@@ -17,12 +17,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import space.banterbox.app.core.designsystem.ShopsSellerIcons
+import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.ui.theme.BanterboxTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShopsTopAppBar(
+fun BanterboxTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -45,9 +45,9 @@ fun ShopsTopAppBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview("Top App Bar")
 @Composable
-private fun ShopsTopAppBarPreview() {
+private fun BanterboxTopAppBarPreview() {
     BanterboxTheme {
-        ShopsTopAppBar(
+        BanterboxTopAppBar(
             title = @Composable {
                 Text(
                     text = "Sarathas",
@@ -58,7 +58,7 @@ private fun ShopsTopAppBarPreview() {
             navigationIcon = {
                 IconButton(onClick = {}) {
                     Icon(
-                        painter = painterResource(id = ShopsSellerIcons.Id_Breadcrumbs),
+                        painter = painterResource(id = BanterboxSellerIcons.Id_Breadcrumbs),
                         contentDescription = "Open Drawer",
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
@@ -67,7 +67,7 @@ private fun ShopsTopAppBarPreview() {
             actions = {
                 IconButton(onClick = {}) {
                     Icon(
-                        imageVector = ShopsSellerIcons.MoreVert,
+                        imageVector = BanterboxSellerIcons.MoreVert,
                         contentDescription = "Options",
                         tint = MaterialTheme.colorScheme.onSurface,
                     )

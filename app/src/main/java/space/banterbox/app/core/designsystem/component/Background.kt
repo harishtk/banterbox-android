@@ -32,7 +32,7 @@ import kotlin.math.tan
  * @param content The background content.
  */
 @Composable
-fun ShopsBackground(
+fun BanterboxBackground(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -58,7 +58,7 @@ fun ShopsBackground(
  * @param content The background content.
  */
 @Composable
-fun ShopsGradientBackground(
+fun BanterboxGradientBackground(
     modifier: Modifier = Modifier,
     gradientColors: GradientColors = LocalGradientColors.current,
     content: @Composable () -> Unit,
@@ -136,7 +136,7 @@ annotation class ThemePreviews
 @Composable
 fun BackgroundDefault() {
     BanterboxTheme(disableDynamicTheming = true) {
-        ShopsBackground(Modifier.size(100.dp), content = {})
+        BanterboxBackground(Modifier.size(100.dp), content = {})
     }
 }
 
@@ -144,7 +144,7 @@ fun BackgroundDefault() {
 @Composable
 fun BackgroundDynamic() {
     BanterboxTheme(disableDynamicTheming = false) {
-        ShopsBackground(Modifier.size(100.dp), content = {})
+        BanterboxBackground(Modifier.size(100.dp), content = {})
     }
 }
 
@@ -152,7 +152,7 @@ fun BackgroundDynamic() {
 @Composable
 fun BackgroundAndroid() {
     BanterboxTheme(androidTheme = true) {
-        ShopsBackground(Modifier.size(100.dp), content = {})
+        BanterboxBackground(Modifier.size(100.dp), content = {})
     }
 }
 
@@ -160,7 +160,7 @@ fun BackgroundAndroid() {
 @Composable
 fun GradientBackgroundDefault() {
     BanterboxTheme(disableDynamicTheming = true) {
-        ShopsGradientBackground(Modifier.size(100.dp), content = {})
+        BanterboxGradientBackground(Modifier.size(100.dp), content = {})
     }
 }
 
@@ -168,7 +168,7 @@ fun GradientBackgroundDefault() {
 @Composable
 fun GradientBackgroundDynamic() {
     BanterboxTheme(disableDynamicTheming = false) {
-        ShopsGradientBackground(Modifier.size(100.dp), content = {})
+        BanterboxGradientBackground(Modifier.size(100.dp), content = {})
     }
 }
 
@@ -176,6 +176,6 @@ fun GradientBackgroundDynamic() {
 @Composable
 fun GradientBackgroundAndroid() {
     BanterboxTheme(androidTheme = true) {
-        ShopsGradientBackground(Modifier.size(100.dp), content = {})
+        BanterboxGradientBackground(Modifier.size(100.dp), content = {})
     }
 }

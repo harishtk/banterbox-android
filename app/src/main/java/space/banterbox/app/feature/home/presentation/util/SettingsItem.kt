@@ -7,7 +7,7 @@ import space.banterbox.app.common.util.UiText
 @Stable
 data class SettingsItem(
     val settingsListType: SettingsListType,
-    val id: Int,
+    val id: String,
     val title: UiText,
     @DrawableRes val icon: Int?,
     val description: UiText?,

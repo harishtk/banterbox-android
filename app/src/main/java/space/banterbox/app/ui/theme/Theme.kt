@@ -12,7 +12,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -27,64 +26,76 @@ val cPrimary: Color
  */
 @VisibleForTesting
 val LightDefaultColorScheme = lightColorScheme(
-    primary = ShopsGreen,
+    primary = Green40,
     onPrimary = Color.White,
-    primaryContainer = ShopsDarkGreen,
-    onPrimaryContainer = LightLimeGreen,
-    secondary = Orange40,
+    primaryContainer = Green90,
+    onPrimaryContainer = Green10,
+
+    secondary = Teal40,
     onSecondary = Color.White,
-    secondaryContainer = Orange90,
-    onSecondaryContainer = Orange10,
+    secondaryContainer = Teal90,
+    onSecondaryContainer = Teal10,
+
     tertiary = Blue40,
     onTertiary = Color.White,
     tertiaryContainer = Blue90,
     onTertiaryContainer = Blue10,
+
     error = Red40,
     onError = Color.White,
     errorContainer = Red90,
     onErrorContainer = Red10,
-    background = DarkPurpleGray99,
-    onBackground = DarkPurpleGray10,
-    surface = DarkPurpleGray99,
-    onSurface = DarkPurpleGray10,
-    surfaceVariant = PurpleGray90,
-    onSurfaceVariant = PurpleGray30,
-    inverseSurface = DarkPurpleGray20,
-    inverseOnSurface = DarkPurpleGray95,
-    outline = PurpleGray50,
+
+    background = LightBackground,
+    onBackground = LightOnBackground,
+
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+
+    surfaceVariant = GreenGray90,
+    onSurfaceVariant = GreenGray30,
+
+    inverseSurface = GreenGray20,
+    inverseOnSurface = Color.White,
+    outline = GreenGray50,
 )
 
-/**
- * Dark default theme color scheme
- */
-@VisibleForTesting
 val DarkDefaultColorScheme = darkColorScheme(
-    primary = Purple80,
-    onPrimary = Purple20,
-    primaryContainer = Purple30,
-    onPrimaryContainer = Purple90,
-    secondary = Orange80,
-    onSecondary = Orange20,
-    secondaryContainer = Orange30,
-    onSecondaryContainer = Orange90,
+    primary = Green80,
+    onPrimary = Green20,
+    primaryContainer = Green30,
+    onPrimaryContainer = Green90,
+
+    secondary = Teal80,
+    onSecondary = Teal20,
+    secondaryContainer = Teal30,
+    onSecondaryContainer = Teal90,
+
     tertiary = Blue80,
     onTertiary = Blue20,
     tertiaryContainer = Blue30,
     onTertiaryContainer = Blue90,
+
     error = Red80,
     onError = Red20,
     errorContainer = Red30,
     onErrorContainer = Red90,
-    background = DarkPurpleGray10,
-    onBackground = DarkPurpleGray90,
-    surface = DarkPurpleGray10,
-    onSurface = DarkPurpleGray90,
-    surfaceVariant = PurpleGray30,
-    onSurfaceVariant = PurpleGray80,
-    inverseSurface = DarkPurpleGray90,
-    inverseOnSurface = DarkPurpleGray10,
-    outline = PurpleGray60,
+
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+
+    surfaceVariant = GreenGray30,
+    onSurfaceVariant = GreenGray80,
+
+    inverseSurface = GreenGray90,
+    inverseOnSurface = GreenGray10,
+    outline = GreenGray60,
 )
+
+
 
 /**
  * Light Android theme color scheme
@@ -231,7 +242,7 @@ fun BanterboxTheme(
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = ShopsTypography,
+            typography = BanterboxTypography,
             content = content
         )
     }

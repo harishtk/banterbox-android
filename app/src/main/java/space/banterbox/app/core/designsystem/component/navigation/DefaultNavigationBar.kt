@@ -47,17 +47,17 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import space.banterbox.app.core.designsystem.component.ShopsNavigationDefaults
+import space.banterbox.app.core.designsystem.component.BanterboxNavigationDefaults
 import space.banterbox.app.ui.defaultCornerSize
 import kotlin.math.roundToInt
 
 @Composable
 fun DefaultNavigationBar(
     modifier: Modifier,
-    containerColor: Color = ShopsNavigationDefaults.containerColor,
-    contentColor: Color = ShopsNavigationDefaults.navigationContentColor(),
-    tonalElevation: Dp = ShopsNavigationDefaults.Elevation,
-    windowInsets: WindowInsets = ShopsNavigationDefaults.windowInsets,
+    containerColor: Color = BanterboxNavigationDefaults.containerColor,
+    contentColor: Color = BanterboxNavigationDefaults.navigationContentColor(),
+    tonalElevation: Dp = BanterboxNavigationDefaults.Elevation,
+    windowInsets: WindowInsets = BanterboxNavigationDefaults.windowInsets,
     content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
@@ -70,10 +70,10 @@ fun DefaultNavigationBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
-                .height(ShopsNavigationDefaults.NavigationBarHeight)
+                .height(BanterboxNavigationDefaults.NavigationBarHeight)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(
-                ShopsNavigationDefaults.NavigationBarItemHorizontalPadding
+                BanterboxNavigationDefaults.NavigationBarItemHorizontalPadding
             ),
             content = content
         )
@@ -81,7 +81,7 @@ fun DefaultNavigationBar(
 }
 
 /**
- * Shops navigation bar items with icon and label content. Mimics Material 3
+ * Banterbox navigation bar items with icon and label content. Mimics Material 3
  * [NavigationBarItem].
  *
  * @param selected Whether this item is selected.
@@ -103,7 +103,7 @@ fun RowScope.DefaultNavigationBarItem(
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = true,
-    colors: ShopsNavigationBarItemColors = ShopsNavigationBarItemDefaults.colors(),
+    colors: BanterboxNavigationBarItemColors = BanterboxNavigationBarItemDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val styledIcon = @Composable {
@@ -190,7 +190,7 @@ fun RowScope.DefaultNavigationBarItem(
             label = "Icon Scale Animation"
         )
 
-        ShopsNavigationBarItemBaselineLayout(
+        BanterboxNavigationBarItemBaselineLayout(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
@@ -201,7 +201,7 @@ fun RowScope.DefaultNavigationBarItem(
 }
 
 @Composable
-private fun ShopsNavigationBarItemBaselineLayout(
+private fun BanterboxNavigationBarItemBaselineLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
@@ -364,7 +364,7 @@ private fun MeasureScope.placeLabelAndIcon(
 }
 
 @Stable
-class ShopsNavigationBarItemColors internal constructor(
+class BanterboxNavigationBarItemColors internal constructor(
     private val selectedIconColor: Color,
     private val selectedTextColor: Color,
     private val selectedIndicatorColor: Color,
@@ -420,7 +420,7 @@ class ShopsNavigationBarItemColors internal constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || other !is ShopsNavigationBarItemColors) return false
+        if (other == null || other !is BanterboxNavigationBarItemColors) return false
 
         if (selectedIconColor != other.selectedIconColor) return false
         if (unselectedIconColor != other.unselectedIconColor) return false
@@ -445,17 +445,17 @@ class ShopsNavigationBarItemColors internal constructor(
     }
 }
 
-object ShopsNavigationBarItemDefaults {
+object BanterboxNavigationBarItemDefaults {
     @Composable
     fun colors(
-        selectedIconColor: Color = ShopsNavigationBarItemDefaults.selectedIconColor,
-        selectedTextColor: Color = ShopsNavigationBarItemDefaults.selectedTextColor,
-        indicatorColor: Color = ShopsNavigationBarItemDefaults.indicatorColor,
-        unselectedIconColor: Color = ShopsNavigationBarItemDefaults.unselectedIconColor,
-        unselectedTextColor: Color = ShopsNavigationBarItemDefaults.unselectedTextColor,
-        disabledIconColor: Color = ShopsNavigationBarItemDefaults.disabledIconColor,
-        disabledTextColor: Color = ShopsNavigationBarItemDefaults.disabledTextColor,
-    ): ShopsNavigationBarItemColors = ShopsNavigationBarItemColors(
+        selectedIconColor: Color = BanterboxNavigationBarItemDefaults.selectedIconColor,
+        selectedTextColor: Color = BanterboxNavigationBarItemDefaults.selectedTextColor,
+        indicatorColor: Color = BanterboxNavigationBarItemDefaults.indicatorColor,
+        unselectedIconColor: Color = BanterboxNavigationBarItemDefaults.unselectedIconColor,
+        unselectedTextColor: Color = BanterboxNavigationBarItemDefaults.unselectedTextColor,
+        disabledIconColor: Color = BanterboxNavigationBarItemDefaults.disabledIconColor,
+        disabledTextColor: Color = BanterboxNavigationBarItemDefaults.disabledTextColor,
+    ): BanterboxNavigationBarItemColors = BanterboxNavigationBarItemColors(
         selectedIconColor = selectedIconColor,
         selectedTextColor = selectedTextColor,
         selectedIndicatorColor = indicatorColor,
