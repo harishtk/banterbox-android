@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 import space.banterbox.app.feature.home.data.source.remote.model.GetUsersResponse
 import space.banterbox.app.feature.home.data.source.remote.model.UserProfileResponse
 
@@ -17,9 +18,9 @@ interface UserApi {
 
     @GET("users?sort={sortBy}&page={page}&pageSize={pageSize}")
     suspend fun getUsers(
-        @Path("sortBy") sortBy: String,
-        @Path("page") page: Int,
-        @Path("pageSize") pageSize: Int
+        @Query("sortBy") sortBy: String,
+        @Query("page") page: Int,
+        @Query("size") pageSize: Int
     ): Response<GetUsersResponse>
 
     @POST("users/{userId}/follow")
@@ -30,14 +31,14 @@ interface UserApi {
 
     @GET("users/following?page={page}&pageSize={pageSize}")
     suspend fun getFollowing(
-        @Path("page") page: Int,
-        @Path("pageSize") pageSize: Int
+        @Query("page") page: Int,
+        @Query("size") pageSize: Int
     ): Response<GetUsersResponse>
 
     @GET("users/followers?page={page}&pageSize={pageSize}")
     suspend fun getFollowers(
-        @Path("page") page: Int,
-        @Path("pageSize") pageSize: Int
+        @Query("page") page: Int,
+        @Query("size") pageSize: Int
     ): Response<GetUsersResponse>
 
 }

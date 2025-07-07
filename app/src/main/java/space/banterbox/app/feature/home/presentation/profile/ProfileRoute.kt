@@ -28,11 +28,18 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -40,8 +47,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -52,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +74,7 @@ import kotlinx.coroutines.launch
 import space.banterbox.app.ObserverAsEvents
 import space.banterbox.app.R
 import space.banterbox.app.common.util.UiText
+import space.banterbox.app.core.designsystem.shimmerBackground
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.feature.home.domain.model.UserProfile
 import space.banterbox.app.feature.onboard.presentation.login.LoginUiEvent
@@ -80,6 +92,7 @@ import kotlin.time.ExperimentalTime
 internal fun ProfileRoute(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
+    onOptionSettingsRequest: () -> Unit,
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -91,15 +104,16 @@ internal fun ProfileRoute(
         modifier = modifier,
         uiState = uiState,
         uiAction = uiAction,
+        onSettingsClick = onOptionSettingsRequest
     )
 
     ObserverAsEvents(flow = viewModel.uiEvent) { event ->
         when (event) {
-            is LoginUiEvent.ShowToast -> {
+            is ProfileUiEvent.ShowToast -> {
                 context.showToast(event.message.asString(context))
             }
 
-            is LoginUiEvent.ShowSnack -> {
+            is ProfileUiEvent.ShowSnackbar -> {
                 scope.launch {
                     snackbarHostState.showSnackbar(event.message.asString(context))
                 }
@@ -114,6 +128,7 @@ private fun ProfileScreen(
     modifier: Modifier,
     uiState: ProfileUiState = ProfileUiState.Idle,
     uiAction: (ProfileUiAction) -> Unit = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -122,6 +137,39 @@ private fun ProfileScreen(
             .fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState, Modifier.navigationBarsPadding()) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
+            var expanded by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier.wrapContentSize(Alignment.TopStart)
+                ) {
+                    IconButton(
+                        onClick = { expanded = true }
+                    ) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "More"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.settings)) },
+                            onClick = {
+                                expanded = false
+                                onSettingsClick()
+                            }
+                        )
+                    }
+                }
+            }
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -248,7 +296,7 @@ private fun ProfileContent(
 }
 
 @Composable
-private fun ColumnScope.FullScreenErrorLayout(
+fun ColumnScope.FullScreenErrorLayout(
     modifier: Modifier = Modifier,
     errorMessage: ErrorMessage,
     onClick: () -> Unit = {},
@@ -379,54 +427,30 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
     }
 }
 
-// Shimmer effect helper
-fun Modifier.shimmerBackground(shape: androidx.compose.ui.graphics.Shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)): Modifier = composed {
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.9f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.9f)
-    )
-
-    val transition = rememberInfiniteTransition(label = "shimmer")
-    val translateAnimation = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200),
-            repeatMode = RepeatMode.Restart
-        ), label = "shimmer_translate"
-    )
-
-    this.background(
-        brush = Brush.linearGradient(
-            colors = shimmerColors,
-            start = Offset.Zero,
-            end = Offset(x = translateAnimation.value, y = translateAnimation.value)
-        ),
-        shape = shape
-    )
-}
-
-
 @OptIn(ExperimentalTime::class)
 @Preview
 @Composable
 private fun ProfileScreenPreview() {
     BanterboxTheme {
         Column {
-            ProfileContent(
-                profile = UserProfile(
-                    id = "dummy-id",
-                    username = "johndoe",
-                    displayName = "John Doe",
-                    bio = "This is a sample bio.",
-                    profilePictureId = "",
-                    createdAt = Clock.System.now().toString(),
-                    followersCount = 100,
-                    followingCount = 50,
-                    isFollowing = true,
-                    isSelf = false,
-                )
+            ProfileScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = ProfileUiState.Success(
+                    profile = UserProfile(
+                        id = "dummy-id",
+                        username = "johndoe",
+                        displayName = "John Doe",
+                        bio = "This is a sample bio.",
+                        profilePictureId = "",
+                        createdAt = Clock.System.now().toString(),
+                        followersCount = 100,
+                        followingCount = 50,
+                        isFollowing = true,
+                        isSelf = false,
+                    )
+                ),
+                uiAction = {},
+                onSettingsClick = {}
             )
         }
     }

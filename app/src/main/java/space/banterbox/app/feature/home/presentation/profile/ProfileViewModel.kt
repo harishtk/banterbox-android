@@ -19,19 +19,13 @@ import space.banterbox.app.common.util.UiText
 import space.banterbox.app.common.util.loadstate.LoadState
 import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
-import space.banterbox.app.core.di.RepositorySource
-import space.banterbox.app.core.di.RepositorySources
-import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.net.NoInternetException
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.home.domain.model.UserProfile
 import space.banterbox.app.feature.home.domain.repository.UserRepository
-import space.banterbox.app.feature.home.domain.util.UserFollowUnFollowException
 import space.banterbox.app.feature.home.domain.util.UserNotFoundException
-import space.banterbox.app.feature.onboard.presentation.login.LoginUiEvent
-import space.banterbox.app.feature.onboard.presentation.util.UsernameUnavailableException
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,7 +46,7 @@ class ProfileViewModel @Inject constructor(
             initialValue = ProfileUiState.Idle
         )
 
-    private val _uiEvent = MutableSharedFlow<LoginUiEvent>()
+    private val _uiEvent = MutableSharedFlow<ProfileUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     val accept: (ProfileUiAction) -> Unit
@@ -144,7 +138,7 @@ class ProfileViewModel @Inject constructor(
         viewModelState.update { state -> state.copy(loadState = newLoadState) }
     }
 
-    private fun sendEvent(newEvent: LoginUiEvent) = viewModelScope.launch {
+    private fun sendEvent(newEvent: ProfileUiEvent) = viewModelScope.launch {
         _uiEvent.emit(newEvent)
     }
 

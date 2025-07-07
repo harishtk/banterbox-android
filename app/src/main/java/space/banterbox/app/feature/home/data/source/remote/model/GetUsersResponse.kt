@@ -1,7 +1,7 @@
 package space.banterbox.app.feature.home.data.source.remote.model
 
 import com.google.gson.annotations.SerializedName
-import space.banterbox.app.feature.home.data.source.remote.dto.UserPreviewDto
+import space.banterbox.app.feature.home.data.source.remote.dto.UserSummaryDto
 
 data class GetUsersResponse(
     val statusCode: Int,
@@ -10,7 +10,7 @@ data class GetUsersResponse(
 ) {
     data class Data(
         @SerializedName("users")
-        val users: List<UserPreviewDto>,
+        val users: List<UserSummaryDto>,
         @SerializedName("total")
         val total: Int,
         @SerializedName("page")

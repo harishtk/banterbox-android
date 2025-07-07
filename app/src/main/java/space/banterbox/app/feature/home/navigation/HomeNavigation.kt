@@ -214,7 +214,11 @@ fun NavGraphBuilder.profileGraph(
             route = profileNavigationRoute,
             deepLinks = listOf(navDeepLink { uriPattern = "seller://profile" })
         ) {
-            ProfileRoute()
+            ProfileRoute(
+                onOptionSettingsRequest = {
+                    navController.navigateToSettings()
+                }
+            )
         }
 
         nestedGraphs()

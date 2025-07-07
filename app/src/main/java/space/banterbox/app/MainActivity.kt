@@ -39,7 +39,7 @@ import space.banterbox.app.common.util.JsonParser
 import space.banterbox.app.core.util.NetworkMonitor
 import space.banterbox.app.feature.home.navigation.HOME_GRAPH_ROUTE_PATTERN
 import space.banterbox.app.feature.onboard.navigation.AUTH_GRAPH_ROUTE_PATTERN
-import space.banterbox.app.ui.SellerApp
+import space.banterbox.app.ui.BanterboxApp
 import space.banterbox.app.ui.theme.BanterboxTheme
 import timber.log.Timber
 import javax.inject.Inject
@@ -187,7 +187,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     // TODO: can we do this in other way
                     startGraph?.let { graph ->
-                        SellerApp(
+                        BanterboxApp(
                             windowSizeClass = calculateWindowSizeClass(activity = this),
                             networkMonitor = networkMonitor,
                             sharedViewModel = sharedViewModel,

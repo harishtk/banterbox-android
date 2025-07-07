@@ -1,9 +1,9 @@
 package space.banterbox.app.feature.home.data.source.remote.dto
 
 import com.google.gson.annotations.SerializedName
-import space.banterbox.app.feature.home.domain.model.UserPreview
+import space.banterbox.app.feature.home.domain.model.UserSummary
 
-data class UserPreviewDto(
+data class UserSummaryDto(
     @SerializedName("id")
     val id: String,
     @SerializedName("username")
@@ -11,14 +11,14 @@ data class UserPreviewDto(
     @SerializedName("displayName")
     val displayName: String,
     @SerializedName("profilePictureId")
-    val profilePictureId: String,
+    val profilePictureId: String?,
 )
 
-fun UserPreviewDto.toUserPreview(): UserPreview {
-    return UserPreview(
+fun UserSummaryDto.toUserSummary(): UserSummary {
+    return UserSummary(
         id = id,
         username = username,
         displayName = displayName,
-        profilePictureId = profilePictureId,
+        profilePictureId = profilePictureId ?: "",
     )
 }

@@ -91,7 +91,7 @@ import kotlin.math.abs
     ExperimentalComposeUiApi::class,
 )
 @Composable
-fun SellerApp(
+fun BanterboxApp(
     windowSizeClass: WindowSizeClass,
     networkMonitor: NetworkMonitor,
     sharedViewModel: SharedViewModel,
@@ -105,10 +105,6 @@ fun SellerApp(
     Timber.d("NavHost: startDestination=$startDestination")
     val shouldShowGradientBackground = true
     /*appState.currentTopLevelDestination == TopLevelDestination.HOME*/
-
-    var showSettingsDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
 
     CompositionLocalProvider(
         LocalWindowSizeClass provides appState.windowSizeClass
@@ -136,218 +132,154 @@ fun SellerApp(
                     }
                 }*/
 
-                if (showSettingsDialog) {
-                    // TODO: show settings dialog
-                }
-
-                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val scope = rememberCoroutineScope()
-
-                var drawerWidth by remember { mutableFloatStateOf(drawerState.offset.value) }
-                Timber.d("NavigationDrawer: offset=${drawerState.offset}")
-
-                // As soon the user move the drawer, the content must move in sync.
-                // So here we're creating a derived state of the drawer state
-                // to update the content position.
-                val contentOffset = remember {
-                    derivedStateOf {
-                        drawerState.offset.value
-                    }
-                }
-
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    drawerContent = {
-                        ModalDrawerSheet(
-                            modifier = Modifier
+                Scaffold(
+                    modifier = Modifier
+                        // .navigationBarsPadding()
+                        .semantics {
+                            testTagsAsResourceId = true
+                        }
+                    ,
+                    // containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
+                    bottomBar = {
+                        AnimatedVisibility(
+                            visible = appState.shouldShowBottomBar,
+                            enter = slideInVertically(
+                                initialOffsetY = { height ->
+                                    height / 2
+                                }
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { height -> height },
+                                animationSpec = tween(
+                                    durationMillis = 175,
+                                    easing = FastOutLinearInEasing
+                                )
+                            ),
                         ) {
-                            /* Drawer Content */
-                            BanterboxNavigationDrawer(
-                                shopData = ShopData.sample(),
-                                destinations = appState.navigationDrawerDestinations,
-                                onNavigateToDestination = { destination ->
-                                    appState.navigateToDrawerDestination(destination)
-                                    scope.launch {
-                                        drawerState.apply {
-                                            if (isOpen) close()
-                                        }
-                                    }
-                                },
+                            BanterboxBottomBar(
+                                destinations = appState.topLevelDestinations,
+                                onNavigateToDestination = appState::navigateToTopLevelDestination,
                                 currentDestination = appState.currentDestination,
-                                modifier = Modifier.testTag("BanterboxNavigationDrawer")
+                                modifier = Modifier.testTag("BanterboxBottomBar"),
                             )
                         }
                     },
-                    gesturesEnabled = drawerState.isOpen
-                ) {
-                    Scaffold(
-                        modifier = Modifier
-                            // .navigationBarsPadding()
-                            .semantics {
-                                testTagsAsResourceId = true
-                            }
-                        ,
-                        // containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                        snackbarHost = { SnackbarHost(snackbarHostState) },
-                        bottomBar = {
-                            AnimatedVisibility(
-                                visible = appState.shouldShowBottomBar,
-                                enter = slideInVertically(
-                                    initialOffsetY = { height ->
-                                        height / 2
-                                    }
+                ) { padding ->
+                    Row(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .consumeWindowInsets(padding)
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal,
                                 ),
-                                exit = slideOutVertically(
-                                    targetOffsetY = { height -> height },
-                                    animationSpec = tween(
-                                        durationMillis = 175,
-                                        easing = FastOutLinearInEasing
-                                    )
-                                ),
-                            ) {
-                                BanterboxBottomBar(
-                                    destinations = appState.topLevelDestinations,
-                                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                                    currentDestination = appState.currentDestination,
-                                    modifier = Modifier.testTag("BanterboxBottomBar"),
-                                )
+                            )
+                        /*.offset(
+                            x = with (LocalDensity.current) {
+                                max(0.dp, xPos.toDp() - 56.dp)
                             }
-                        },
-                    ) { padding ->
-                        val xPos = (abs(drawerWidth) - abs(contentOffset.value))
-                        Row(
-                            Modifier
-                                .fillMaxSize()
-                                .padding(padding)
-                                .consumeWindowInsets(padding)
-                                .windowInsetsPadding(
-                                    WindowInsets.safeDrawing.only(
-                                        WindowInsetsSides.Horizontal,
-                                    ),
-                                )
-                            /*.offset(
-                                x = with (LocalDensity.current) {
-                                    max(0.dp, xPos.toDp() - 56.dp)
-                                }
-                            )*/,
-                        ) {
-                            if (appState.shouldShowNavRail) {
-                                BanterboxNavRail(
-                                    destinations = appState.topLevelDestinations,
-                                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                                    currentDestination = appState.currentDestination,
+                        )*/,
+                    ) {
+                        if (appState.shouldShowNavRail) {
+                            BanterboxNavRail(
+                                destinations = appState.topLevelDestinations,
+                                onNavigateToDestination = appState::navigateToTopLevelDestination,
+                                currentDestination = appState.currentDestination,
+                                modifier = Modifier
+                                    .testTag("BanterboxNavRail")
+                                    .safeDrawingPadding(),
+                            )
+                        }
+
+                        Column(Modifier.fillMaxSize()) {
+                            // Show the top app bar on top level destinations.
+                            val destination = appState.currentTopLevelDestination
+                            if (destination != null) {
+                                /*BanterboxTopAppBar(
                                     modifier = Modifier
-                                        .testTag("BanterboxNavRail")
-                                        .safeDrawingPadding(),
-                                )
+                                        .shadow(4.dp),
+                                    title = @Composable {
+                                        Text(
+                                            text = "Name",
+                                            style = MaterialTheme.typography.titleMedium
+                                                .copy(fontWeight = FontWeight.W700)
+                                        )
+                                    },
+                                    navigationIcon = {
+                                        IconButton(onClick = {
+                                            scope.launch {
+                                                drawerState.apply {
+                                                    if (isClosed) open() else close()
+                                                }
+                                            }
+                                        }) {
+                                            Icon(
+                                                painter = painterResource(id = BanterboxSellerIcons.Id_Breadcrumbs),
+                                                contentDescription = "Open Drawer",
+                                                tint = MaterialTheme.colorScheme.onSurface,
+                                            )
+                                        }
+                                    },
+                                    actions = {
+                                        IconButton(onClick = {}) {
+                                            Icon(
+                                                imageVector = BanterboxSellerIcons.MoreVert,
+                                                contentDescription = "Options",
+                                                tint = MaterialTheme.colorScheme.onSurface,
+                                            )
+                                        }
+                                    }
+                                )*/
                             }
 
-                            Column(Modifier.fillMaxSize()) {
-                                // Show the top app bar on top level destinations.
-                                val destination = appState.currentTopLevelDestination
-                                if (destination != null) {
-                                    BanterboxTopAppBar(
+                            BanterboxNavHost(
+                                modifier = Modifier.weight(1F),
+                                appState = appState,
+                                onShowSnackBar = { message, action ->
+                                    snackbarHostState.showSnackbar(
+                                        message = message,
+                                        actionLabel = action,
+                                        duration = SnackbarDuration.Short,
+                                    ) == SnackbarResult.ActionPerformed
+                                },
+                                startGraph = startGraph,
+                                startDestination = startDestination
+                            )
+
+                            AnimatedVisibility(
+                                visible = isOffline,
+                                enter = slideInVertically(
+                                    animationSpec = tween(
+                                        200,
+                                    )
+                                ) { fullHeight ->
+                                    fullHeight / 3
+                                }
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1F)
+                                        .background(MaterialTheme.colorScheme.errorContainer)
+                                ) {
+                                    Text(
+                                        text = notConnectedMessage,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        textAlign = TextAlign.Center,
                                         modifier = Modifier
-                                            .shadow(4.dp),
-                                        title = @Composable {
-                                            Text(
-                                                text = "Name",
-                                                style = MaterialTheme.typography.titleMedium
-                                                    .copy(fontWeight = FontWeight.W700)
-                                            )
-                                        },
-                                        navigationIcon = {
-                                            IconButton(onClick = {
-                                                scope.launch {
-                                                    drawerState.apply {
-                                                        if (isClosed) open() else close()
-                                                    }
-                                                }
-                                            }) {
-                                                Icon(
-                                                    painter = painterResource(id = BanterboxSellerIcons.Id_Breadcrumbs),
-                                                    contentDescription = "Open Drawer",
-                                                    tint = MaterialTheme.colorScheme.onSurface,
-                                                )
-                                            }
-                                        },
-                                        actions = {
-                                            IconButton(onClick = {}) {
-                                                Icon(
-                                                    imageVector = BanterboxSellerIcons.MoreVert,
-                                                    contentDescription = "Options",
-                                                    tint = MaterialTheme.colorScheme.onSurface,
-                                                )
-                                            }
-                                        }
+                                            .fillMaxWidth()
+                                            .padding(horizontal = insetMedium)
                                     )
                                 }
-
-                                BanterboxNavHost(
-                                    modifier = Modifier.weight(1F),
-                                    appState = appState,
-                                    onShowSnackBar = { message, action ->
-                                        snackbarHostState.showSnackbar(
-                                            message = message,
-                                            actionLabel = action,
-                                            duration = SnackbarDuration.Short,
-                                        ) == SnackbarResult.ActionPerformed
-                                    },
-                                    startGraph = startGraph,
-                                    startDestination = startDestination
-                                )
-
-                                AnimatedVisibility(
-                                    visible = isOffline,
-                                    enter = slideInVertically(
-                                        animationSpec = tween(
-                                            200,
-                                        )
-                                    ) { fullHeight ->
-                                        fullHeight / 3
-                                    }
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1F)
-                                            .background(MaterialTheme.colorScheme.errorContainer)
-                                    ) {
-                                        Text(
-                                            text = notConnectedMessage,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onErrorContainer,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = insetMedium)
-                                        )
-                                    }
-                                }
-                            }
-
-                            // TODO: We may want to add padding or spacer when the snackbar is shown so that
-                            //  content doesn't display behind it.
-                        }
-                    }
-                }
-
-                SideEffect {
-                    if (drawerWidth == 0f) {
-                        drawerWidth = drawerState.offset.value
-                    }
-                }
-
-                BackHandler(
-                    enabled = drawerState.isOpen
-                ) {
-                    scope.launch {
-                        drawerState.apply {
-                            if (isOpen) {
-                                close()
                             }
                         }
+
+                        // TODO: We may want to add padding or spacer when the snackbar is shown so that
+                        //  content doesn't display behind it.
                     }
                 }
             }
