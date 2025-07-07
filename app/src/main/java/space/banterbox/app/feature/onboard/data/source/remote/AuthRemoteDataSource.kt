@@ -40,6 +40,6 @@ class AuthRemoteDataSource @Inject constructor(
     suspend fun login(loginRequestDto: LoginRequestDto): NetworkResult<LoginResponse> =
         safeApiCall { apiService.login(loginRequestDto) }
 
-    suspend fun refresh(refreshTokenRequestDto: RefreshTokenRequestDto): NetworkResult<RefreshTokenResponse> =
-        safeApiCall { apiService.refreshToken(refreshTokenRequestDto) }
+    suspend fun refresh(refreshToken: String): NetworkResult<RefreshTokenResponse> =
+        safeApiCall { apiService.refreshToken(refreshToken) }
 }

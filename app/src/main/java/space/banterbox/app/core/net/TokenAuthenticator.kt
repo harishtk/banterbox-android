@@ -2,10 +2,12 @@ package space.banterbox.app.core.net
 
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
+import okhttp3.Cookie
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
 import retrofit2.HttpException
+import space.banterbox.app.BuildConfig
 import space.banterbox.app.core.persistence.PersistentStore
 import space.banterbox.app.core.util.NetworkResult
 import space.banterbox.app.feature.onboard.data.source.remote.AuthApi
@@ -42,7 +44,24 @@ class TokenAuthenticator(
     private suspend fun refreshToken(currentToken: String?): String? {
         return try {
             val request = RefreshTokenRequestDto(store.refreshToken)
-            when (val networkResult = authREmoteDataSource.refresh(request)) {
+//            val tokenCookie = Cookie.Builder()
+//                .name("refreshToken")
+//                .value(store.refreshToken)
+//                .domain(BuildConfig.BASE_URL)
+//                .httpOnly()
+//                .path("/auth/refresh")
+//                .secure()
+//                .build()
+
+            val tokenCookie = StringBuilder()
+                .append("refreshToken=${store.refreshToken}")
+                .append("Path=/auth/refresh")
+                .append("Max-Age=604800")
+                .append("Secure")
+                .append("HttpOnly")
+                .toString()
+
+            when (val networkResult = authREmoteDataSource.refresh(tokenCookie)) {
                 is NetworkResult.Success -> {
                     return if (networkResult.data?.statusCode == HttpsURLConnection.HTTP_OK) {
                         networkResult.data.data!!.accessToken

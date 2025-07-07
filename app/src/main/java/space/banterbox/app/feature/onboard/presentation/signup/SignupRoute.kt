@@ -3,6 +3,7 @@ package space.banterbox.app.feature.onboard.presentation.signup
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -754,7 +755,8 @@ private fun BioInput(
                         text = "$count/$BioLength",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Normal, color = TextSecondary),
                         textAlign = TextAlign.End,
-                        modifier = Modifier.exposeBounds()
+                        modifier = Modifier
+                            .exposeBounds()
                             .fillMaxWidth()
                     )
                 }
@@ -813,13 +815,16 @@ private fun Footer(
 }
 
 @Composable
-private fun SignupSuccessLayout(
+private fun ColumnScope.SignupSuccessLayout(
     modifier: Modifier = Modifier,
     onLoginClick: () -> Unit = {},
 ) {
+
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "All done!",
@@ -842,11 +847,12 @@ private fun SignupSuccessLayout(
                 .padding(horizontal = insetVeryLarge)
         )
 
-        Spacer(modifier = Modifier.height(defaultSpacerSize))
+        Spacer(modifier = Modifier.height(spacerSizeTiny))
 
         Button(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(16.dp)
                 .height(40.dp),
             shape = RoundedCornerShape(cornerSizeMedium),
             enabled = true,
@@ -859,23 +865,23 @@ private fun SignupSuccessLayout(
             )
         }
 
-//        val composition by rememberLottieComposition(
-//            spec = LottieCompositionSpec.RawRes(
-//                R.raw.papersad
-//            )
-//        )
-//        val progress by animateLottieCompositionAsState(
-//            composition = composition,
-//            isPlaying = true,
-//            iterations = LottieConstants.IterateForever,
-//        )
-//        LottieAnimation(
-//            composition = composition,
-//            progress = { progress },
-//            modifier = Modifier
-//                .fillMaxWidth(0.6F)
-//                .aspectRatio(1F)
-//        )
+        //        val composition by rememberLottieComposition(
+        //            spec = LottieCompositionSpec.RawRes(
+        //                R.raw.papersad
+        //            )
+        //        )
+        //        val progress by animateLottieCompositionAsState(
+        //            composition = composition,
+        //            isPlaying = true,
+        //            iterations = LottieConstants.IterateForever,
+        //        )
+        //        LottieAnimation(
+        //            composition = composition,
+        //            progress = { progress },
+        //            modifier = Modifier
+        //                .fillMaxWidth(0.6F)
+        //                .aspectRatio(1F)
+        //        )
     }
 }
 
@@ -890,6 +896,19 @@ private fun SignupScreenPreview() {
     ) {
         SignupScreen(
             uiState = SignupUiState.SignupForm("", "", "", ""),
+            uiAction = {},
+        )
+    }
+}
+
+@Preview(wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
+@Composable
+private fun SignupSuccessLayoutPreview() {
+    BanterboxTheme(
+        disableDynamicTheming = false
+    ) {
+        SignupScreen(
+            uiState = SignupUiState.SignupSuccess,
             uiAction = {},
         )
     }

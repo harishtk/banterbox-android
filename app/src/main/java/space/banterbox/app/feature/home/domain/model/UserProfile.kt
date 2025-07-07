@@ -7,4 +7,8 @@ data class UserProfile(
     val bio: String,
     val profilePictureId: String,
     val createdAt: String,
+    val followersCount: Int,
+    val followingCount: Int,
+    val isFollowing: Boolean,
+    val isSelf: Boolean,
 )

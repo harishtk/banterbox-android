@@ -2,6 +2,8 @@ package space.banterbox.app.feature.onboard.data.source.remote
 
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import space.banterbox.app.core.domain.model.BaseResponse
 import space.banterbox.app.feature.onboard.data.source.remote.dto.LoginRequestDto
@@ -18,6 +20,6 @@ interface AuthApi {
     @POST("auth/login")
     suspend fun login(@Body loginRequestDto: LoginRequestDto): Response<LoginResponse>
 
-    @POST("auth/refresh")
-    suspend fun refreshToken(@Body refreshTokenRequestDto: RefreshTokenRequestDto): Response<RefreshTokenResponse>
+    @GET("auth/refresh")
+    suspend fun refreshToken(@Header("Cookie") refreshToken: String): Response<RefreshTokenResponse>
 }

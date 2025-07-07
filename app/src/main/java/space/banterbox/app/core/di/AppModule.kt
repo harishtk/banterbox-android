@@ -119,3 +119,9 @@ annotation class ApplicationCoroutineScope
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class WebService
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class RepositorySource(val repositorySource: RepositorySources)
+
+enum class RepositorySources { Default, RemoteOnly, }

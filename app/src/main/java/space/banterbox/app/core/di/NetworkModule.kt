@@ -40,6 +40,7 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideOkhttpCallFactory(
+        authRemoteDataSource: AuthRemoteDataSource,
         persistentStore: PersistentStore,
     ): okhttp3.Call.Factory {
         val okHttpClientBuilder = OkHttpClient.Builder()
@@ -61,10 +62,15 @@ object NetworkModule {
         okHttpClientBuilder.addInterceptor(
             GuestUserInterceptor { persistentStore.fcmToken }
         )
+        okHttpClientBuilder.authenticator(
+            TokenAuthenticator(
+                authRemoteDataSource,
+                store = persistentStore
+            )
+        )
         okHttpClientBuilder.addInterceptor(
             ForbiddenInterceptor { EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis())) }
         )
-
         // Add delays to all api calls
         // ifDebug { okHttpClientBuilder.addInterceptor(DelayInterceptor(2_000, TimeUnit.MILLISECONDS)) }
 
@@ -101,14 +107,14 @@ object NetworkModule {
         okHttpClientBuilder.addInterceptor(
             GuestUserInterceptor { persistentStore.fcmToken }
         )
-        okHttpClientBuilder.addInterceptor(
-            ForbiddenInterceptor { EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis())) }
-        )
         okHttpClientBuilder.authenticator(
             TokenAuthenticator(
                 authRemoteDataSource,
                 store = persistentStore
             )
+        )
+        okHttpClientBuilder.addInterceptor(
+            ForbiddenInterceptor { EventBus.getDefault().post(UnAuthorizedEvent(System.currentTimeMillis())) }
         )
 
         // Add delays to all api calls

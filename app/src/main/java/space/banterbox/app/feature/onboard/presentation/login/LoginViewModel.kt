@@ -290,6 +290,7 @@ class LoginViewModel @Inject constructor(
 
         persistentStore.apply {
             setDeviceToken(loginData.deviceToken.nullAsEmpty())
+            setRefreshToken(loginData.refreshToken.nullAsEmpty())
         }
         userDataRepository.setUserData(loginData.loginUser)
     }
