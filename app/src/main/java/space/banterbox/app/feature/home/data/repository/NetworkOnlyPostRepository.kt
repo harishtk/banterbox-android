@@ -1,16 +1,22 @@
 package space.banterbox.app.feature.home.data.repository
 
 import space.banterbox.app.common.util.paging.PagedRequest
+import space.banterbox.app.core.net.ApiException
 import space.banterbox.app.core.util.NetworkResult
 import space.banterbox.app.core.util.NetworkResultParser
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.home.data.source.remote.PostRemoteDataSource
 import space.banterbox.app.feature.home.data.source.remote.dto.PostDto
 import space.banterbox.app.feature.home.data.source.remote.dto.UserSummaryDto
+import space.banterbox.app.feature.home.data.source.remote.dto.asDto
 import space.banterbox.app.feature.home.data.source.remote.dto.toPost
 import space.banterbox.app.feature.home.data.source.remote.dto.toUserSummary
+import space.banterbox.app.feature.home.data.source.remote.model.PostFeedResponse
+import space.banterbox.app.feature.home.data.source.remote.model.SinglePostResponse
 import space.banterbox.app.feature.home.domain.model.PostsWithUsers
+import space.banterbox.app.feature.home.domain.model.request.CreatePostRequest
 import space.banterbox.app.feature.home.domain.repository.PostRepository
+import space.banterbox.app.feature.home.domain.util.PostNotFoundException
 import javax.inject.Inject
 import javax.net.ssl.HttpsURLConnection
 
@@ -21,7 +27,65 @@ class NetworkOnlyPostRepository @Inject constructor(
     override suspend fun globalFeed(request: PagedRequest<Int>): Result<PostsWithUsers> {
         val page = request.key ?: 0
         val pageSize = request.loadSize
-        return when (val networkResult = remoteDataSource.getGlobalFeed(page, pageSize)) {
+        return parseFeedResponse(remoteDataSource.getGlobalFeed(page, pageSize))
+    }
+
+    override suspend fun getPrivateFeed(request: PagedRequest<Int>): Result<PostsWithUsers> {
+        val page = request.key ?: 0
+        val pageSize = request.loadSize
+        return parseFeedResponse(remoteDataSource.getPrivateFeed(page, pageSize))
+    }
+
+    override suspend fun getPostsByAuthorId(
+        authorId: String,
+        request: PagedRequest<Int>
+    ): Result<PostsWithUsers> {
+        val page = request.key ?: 0
+        val pageSize = request.loadSize
+        return parseFeedResponse(remoteDataSource.getPostsByAuthorId(authorId, page, pageSize))
+    }
+
+    override suspend fun createPost(request: CreatePostRequest): Result<PostsWithUsers> {
+        return when (val networkResult = remoteDataSource.createPost(request.asDto())) {
+            is NetworkResult.Success -> {
+                if (networkResult.data?.statusCode == HttpsURLConnection.HTTP_CREATED) {
+                    if (networkResult.data.data != null) {
+                        val data = networkResult.data.data
+                        Result.Success(
+                            PostsWithUsers(
+                                posts = listOf(data.post.toPost()),
+                                users = data.users.map(UserSummaryDto::toUserSummary),
+                                nextPagingKey = null
+                            )
+                        )
+                    } else {
+                        emptyResponse(networkResult)
+                    }
+                } else {
+                    badResponse(networkResult)
+                }
+            }
+
+            else -> {
+                parseErrorNetworkResult(networkResult)
+            }
+        }
+    }
+
+    override suspend fun getPostById(postId: String): Result<PostsWithUsers> {
+        return parseSinglePostResponse(remoteDataSource.getPostById(postId))
+    }
+
+    override suspend fun likePost(postId: String): Result<PostsWithUsers> {
+        return parseSinglePostResponse(remoteDataSource.likePost(postId))
+    }
+
+    override suspend fun unlikePost(postId: String): Result<PostsWithUsers> {
+        return parseSinglePostResponse(remoteDataSource.unlikePost(postId))
+    }
+
+    private fun parseFeedResponse(networkResult: NetworkResult<PostFeedResponse>): Result<PostsWithUsers> {
+        return when (networkResult) {
             is NetworkResult.Success -> {
                 if (networkResult.data?.statusCode == HttpsURLConnection.HTTP_OK) {
                     if (networkResult.data.data != null) {
@@ -61,30 +125,37 @@ class NetworkOnlyPostRepository @Inject constructor(
         }
     }
 
-    override suspend fun getPrivateFeed(request: PagedRequest<Int>): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
-    }
+    private fun parseSinglePostResponse(networkResult: NetworkResult<SinglePostResponse>): Result<PostsWithUsers> {
+        return when (networkResult) {
+            is NetworkResult.Success -> {
+                if (networkResult.data?.statusCode == HttpsURLConnection.HTTP_OK) {
+                    if (networkResult.data.data != null) {
+                        val data = networkResult.data.data
+                        return Result.Success(
+                            PostsWithUsers(
+                                posts = listOf(data.post.toPost()),
+                                users = data.users.map(UserSummaryDto::toUserSummary),
+                                nextPagingKey = null
+                            )
+                        )
+                    } else {
+                        emptyResponse(networkResult)
+                    }
+                } else {
+                    badResponse(networkResult)
+                }
+            }
 
-    override suspend fun getPostsByAuthorId(
-        authorId: String,
-        request: PagedRequest<Int>
-    ): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
-    }
+            else -> {
+                when (networkResult.code) {
+                    HttpsURLConnection.HTTP_NOT_FOUND -> {
+                        val cause = PostNotFoundException("Post not found")
+                        Result.Error(ApiException(cause))
+                    }
 
-    override suspend fun createPost(content: String): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getPostById(postId: String): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun likePost(postId: String): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun unlikePost(postId: String): Result<PostsWithUsers> {
-        TODO("Not yet implemented")
+                    else -> parseErrorNetworkResult(networkResult)
+                }
+            }
+        }
     }
 }

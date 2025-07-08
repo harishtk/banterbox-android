@@ -9,6 +9,7 @@ data class UserProfile(
     val createdAt: String,
     val followersCount: Int,
     val followingCount: Int,
+    val postsCount: Int,
     val isFollowing: Boolean,
     val isSelf: Boolean,
 )

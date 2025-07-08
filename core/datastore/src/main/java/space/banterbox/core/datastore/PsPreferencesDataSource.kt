@@ -47,7 +47,7 @@ class PsPreferencesDataSource @Inject constructor(
                 shouldShowAppRating = preferences[UserPreferenceKeys.ShouldShowAppRating] ?: false,
                 themeBrand = getThemeBrand(preferences),
                 darkThemeConfig = getDarkThemeConfig(preferences),
-                useDynamicColor = preferences[UserPreferenceKeys.UseDynamicColor] ?: false,
+                useDynamicColor = preferences[UserPreferenceKeys.UseDynamicColor] ?: true,
                 isAppRatingShownAtLeastOnce = preferences[UserPreferenceKeys.AppRatingShownAtLeastOnce] ?: false,
                 onboardStep = preferences[UserPreferenceKeys.OnboardStep] ?: "",
             )
@@ -178,7 +178,7 @@ class PsPreferencesDataSource @Inject constructor(
             DARK_THEME_CONFIG_DARK -> DarkThemeConfig.DARK
             DARK_THEME_CONFIG_LIGHT -> DarkThemeConfig.LIGHT
             DARK_THEME_CONFIG_FOLLOW_SYSTEM -> DarkThemeConfig.FOLLOW_SYSTEM
-            else -> DarkThemeConfig.LIGHT
+            else -> DarkThemeConfig.FOLLOW_SYSTEM
         }
     }
 

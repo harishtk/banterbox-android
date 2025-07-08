@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -46,12 +47,21 @@ class ProfileViewModel @Inject constructor(
             initialValue = ProfileUiState.Idle
         )
 
+    val errorState = viewModelState
+        .mapNotNull { it.errorMessage }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
+
     private val _uiEvent = MutableSharedFlow<ProfileUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     val accept: (ProfileUiAction) -> Unit
 
     private var profileFetchJob: Job? = null
+    private var followUnfollowJob: Job? = null
 
     init {
         accept = { uiAction -> onUiAction(uiAction)}
@@ -60,6 +70,12 @@ class ProfileViewModel @Inject constructor(
     private fun onUiAction(uiAction: ProfileUiAction) {
         when (uiAction) {
             ProfileUiAction.Refresh -> getUserProfileInternal()
+            is ProfileUiAction.FollowUser -> {
+                followUnfollowUser(uiAction.userId, false)
+            }
+            is ProfileUiAction.UnfollowUser -> {
+                followUnfollowUser(uiAction.userId, true)
+            }
         }
     }
 
@@ -71,8 +87,17 @@ class ProfileViewModel @Inject constructor(
 
         profileFetchJob?.cancel(CancellationException("New request"))
         setLoading(LoadType.REFRESH, LoadState.Loading())
+
+        val otherUserId = savedStateHandle.get<String>("userId")
+
         profileFetchJob = viewModelScope.launch {
-            when (val result = userRepository.getOwnUser()) {
+            val result = if (!(otherUserId.isNullOrBlank())) {
+                userRepository.getUser(otherUserId)
+            } else {
+                userRepository.getOwnUser()
+            }
+
+            when (result) {
                 Result.Loading -> {}
                 is Result.Error -> {
                     val errorMessage = when (result.exception) {
@@ -130,6 +155,60 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun followUnfollowUser(userId: String, isFollowing: Boolean) {
+        if (followUnfollowJob?.isActive == true) {
+            val t = IllegalStateException("Follow/unfollow job is already active, cancelling")
+            Timber.w(t)
+        }
+
+        followUnfollowJob?.cancel(CancellationException("New request"))
+        setLoading(LoadType.ACTION, LoadState.Loading())
+
+        followUnfollowJob = viewModelScope.launch {
+            val result = if (isFollowing) {
+                userRepository.unfollowUser(userId)
+            } else {
+                userRepository.followUser(userId)
+            }
+            when (result) {
+                Result.Loading -> {}
+                is Result.Error -> {
+                    val errorMessage = when (result.exception) {
+                        is ApiException -> {
+                            ErrorMessage.unknown()
+                        }
+
+                        is NoInternetException -> {
+                            ErrorMessage(
+                                id = 1,
+                                exception = result.exception,
+                                message = UiText.noInternet
+                            )
+                        }
+
+                        else -> {
+                            ErrorMessage.unknown()
+                        }
+                    }
+                    viewModelState.update { state ->
+                        state.copy(
+                            errorMessage = errorMessage
+                        )
+                    }
+                    setLoading(LoadType.ACTION, LoadState.Error(result.exception))
+                }
+                is Result.Success -> {
+                    setLoading(LoadType.ACTION, LoadState.NotLoading.Complete)
+                    viewModelState.update { state ->
+                        state.copy(
+                            profile = result.data
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private fun setLoading(
         loadType: LoadType,
         loadState: LoadState,
@@ -180,6 +259,8 @@ sealed interface ProfileUiState {
 
 sealed interface ProfileUiAction {
     data object Refresh : ProfileUiAction
+    data class FollowUser(val userId: String) : ProfileUiAction
+    data class UnfollowUser(val userId: String) : ProfileUiAction
 }
 
 sealed interface ProfileUiEvent {

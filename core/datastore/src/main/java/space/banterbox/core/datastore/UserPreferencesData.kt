@@ -15,7 +15,7 @@ data class UserData(
     val lastGreetedTime: Long = 0,
     val shouldShowAppRating: Boolean = false,
     val themeBrand: ThemeBrand = ThemeBrand.DEFAULT,
-    val darkThemeConfig: DarkThemeConfig = DarkThemeConfig.LIGHT,
+    val darkThemeConfig: DarkThemeConfig = DarkThemeConfig.FOLLOW_SYSTEM,
     val useDynamicColor: Boolean = true,
     val isAppRatingShownAtLeastOnce: Boolean = false,
 )

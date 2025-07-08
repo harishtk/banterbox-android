@@ -21,6 +21,8 @@ data class UserProfileDto(
     val followersCount: Int,
     @SerializedName("followingCount")
     val followingCount: Int,
+    @SerializedName("postsCount")
+    val postsCount: Int?,
     @SerializedName("isFollowing")
     val isFollowing: Boolean,
     @SerializedName("isSelf")
@@ -37,6 +39,7 @@ fun UserProfileDto.toUserProfile(): UserProfile {
         createdAt = createdAt,
         followersCount = followersCount,
         followingCount = followingCount,
+        postsCount = postsCount ?: 0,
         isFollowing = isFollowing,
         isSelf = isSelf
     )

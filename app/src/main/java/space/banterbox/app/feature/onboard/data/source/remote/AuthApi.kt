@@ -20,6 +20,6 @@ interface AuthApi {
     @POST("auth/login")
     suspend fun login(@Body loginRequestDto: LoginRequestDto): Response<LoginResponse>
 
-    @GET("auth/refresh")
+    @POST("auth/refresh")
     suspend fun refreshToken(@Header("Cookie") refreshToken: String): Response<RefreshTokenResponse>
 }

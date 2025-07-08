@@ -1,6 +1,7 @@
 package space.banterbox.app
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -16,11 +17,11 @@ import androidx.navigation.NavHostController
  */
 @Composable
 inline fun <reified T : ViewModel> activityViewModel(): T =
-    viewModel(modelClass = T::class.java, viewModelStoreOwner = LocalContext.current as ComponentActivity)
+    viewModel(modelClass = T::class.java, viewModelStoreOwner = LocalActivity.current as ComponentActivity)
 
 @Composable
 inline fun <reified T : ViewModel> hiltActivityViewModel(): T =
-    hiltViewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
+    hiltViewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
 
 /**
  * The [ViewModel] obtained with this helper is scoped to the parent graph or destination. So that
@@ -31,9 +32,9 @@ inline fun <reified T : ViewModel> hiltActivityViewModel(): T =
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
     navController: NavHostController
 ): T {
-    val navGraphRoute = destination.parent?.route ?: return viewModel()
+    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
     val parentEntry = remember(this) {
         navController.getBackStackEntry(navGraphRoute)
     }
-    return viewModel(parentEntry)
+    return hiltViewModel(parentEntry)
 }

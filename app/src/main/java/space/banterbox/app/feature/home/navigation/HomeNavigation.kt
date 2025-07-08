@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -15,14 +16,17 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import space.banterbox.app.Constant
+import space.banterbox.app.SharedViewModel
 import space.banterbox.app.feature.home.presentation.admin.AdminRoute
 import space.banterbox.app.feature.home.presentation.create.CreateRoute
+import space.banterbox.app.feature.home.presentation.create.WritePostRoute
 import space.banterbox.app.feature.home.presentation.insights.InsightsRoute
 import space.banterbox.app.feature.home.presentation.inventory.InventoryRoute
 import space.banterbox.app.feature.home.presentation.landing.HomeRoute
 import space.banterbox.app.feature.home.presentation.profile.ProfileRoute
 import space.banterbox.app.feature.home.presentation.settings.SettingsRoute
 import space.banterbox.app.feature.home.presentation.webview.WebPageRoute
+import space.banterbox.app.sharedViewModel
 
 const val HOME_GRAPH_ROUTE_PATTERN = "home_graph"
 const val SETTINGS_GRAPH_ROUTE_PATTERN = "settings_graph"
@@ -36,7 +40,9 @@ const val insightsOverviewNavigationRoute = "insights_overview_route"
 const val createNavigationRoute = "create_route"
 const val inventoryNavigationRoute = "inventory_route"
 const val adminNavigationRoute = "admin_route"
-const val profileNavigationRoute = "profile_route"
+const val USER_ID_ARG = "userId"
+const val profileNavigationRoute = "profile_route/{$USER_ID_ARG}"
+const val writePostRoute = "write_post_route"
 
 const val webPageNavigationRoute = "web_page_route?url={url}"
 const val settingsNavigationRoute = "settings_route"
@@ -50,8 +56,14 @@ fun NavController.navigateToHome(navOptions: NavOptions? = null) {
     this.navigate(homeNavigationRoute, navOptions)
 }
 
-fun NavController.navigateToProfile(navOptions: NavOptions? = null) {
-    this.navigate(profileNavigationRoute, navOptions)
+fun NavController.navigateToProfile(
+    profileId: String = "",
+    navOptions: NavOptions? = null
+) {
+    this.navigate(
+        profileNavigationRoute.replace("{$USER_ID_ARG}", profileId),
+        navOptions
+    )
 }
 
 fun NavController.navigateToInsights(navOptions: NavOptions? = null) {
@@ -86,7 +98,17 @@ fun NavController.navigateToSettingsGraph(navOptions: NavOptions? = null) {
     this.navigate(SETTINGS_GRAPH_ROUTE_PATTERN, navOptions)
 }
 
-fun NavGraphBuilder.homeScreen() {
+fun NavController.navigateToProfileGraph(navOptions: NavOptions? = null) {
+    this.navigate(PROFILE_GRAPH_ROUTE_PATTERN, navOptions)
+}
+
+fun NavController.navigateToWritePost(navOptions: NavOptions? = null) {
+    this.navigate(writePostRoute, navOptions)
+}
+
+fun NavGraphBuilder.homeScreen(
+    navController: NavHostController
+) {
     composable(
         route = homeNavigationRoute,
         deepLinks = listOf(
@@ -96,7 +118,16 @@ fun NavGraphBuilder.homeScreen() {
             navArgument(FIRST_LOG_IN) { defaultValue = "0" }
         ),
     ) {
-        HomeRoute()
+        val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+        HomeRoute(
+            sharedViewModel = sharedViewModel,
+            onWritePostRequest = {
+                navController.navigateToWritePost()
+            },
+            onNavigateToProfile = { userId ->
+                navController.navigateToProfile(userId)
+            }
+        )
     }
 }
 
@@ -113,6 +144,20 @@ fun NavGraphBuilder.createScreen() {
         route = createNavigationRoute,
     ) {
         CreateRoute()
+    }
+}
+
+fun NavGraphBuilder.writePostScreen(
+    navController: NavHostController
+) {
+    composable(
+        route = writePostRoute,
+    ) {
+        val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+        WritePostRoute(
+            sharedViewModel = sharedViewModel,
+            onNavUp = { navController.popBackStack() }
+        )
     }
 }
 
@@ -165,7 +210,7 @@ fun NavGraphBuilder.settingsScreen(
 }
 
 fun NavGraphBuilder.homeGraph(
-    navController: NavController,
+    navController: NavHostController,
     onBackClick: () -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit = {},
 ) {
@@ -177,14 +222,28 @@ fun NavGraphBuilder.homeGraph(
             route = homeNavigationRoute,
             /* TODO: add deep links and other args here */
         ) {
-            HomeRoute()
+            val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+            HomeRoute(
+                sharedViewModel = sharedViewModel,
+                onWritePostRequest = {
+                    navController.navigateToWritePost()
+                },
+                onNavigateToProfile = { userId ->
+                    navController.navigateToProfile(userId)
+                }
+            )
         }
         composable(
-            route = createNavigationRoute,
+            route = writePostRoute,
             /* TODO: add deep links and other args here */
         ) {
-            CreateRoute()
+            val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+            WritePostRoute(
+                sharedViewModel = sharedViewModel,
+                onNavUp = { navController.popBackStack() }
+            )
         }
+
         composable(
             route = inventoryNavigationRoute,
         ) {
@@ -212,7 +271,12 @@ fun NavGraphBuilder.profileGraph(
     ) {
         composable(
             route = profileNavigationRoute,
-            deepLinks = listOf(navDeepLink { uriPattern = "seller://profile" })
+            arguments = listOf(
+                navArgument(USER_ID_ARG) { type = NavType.StringType }
+            ),
+            deepLinks = listOf(navDeepLink {
+                uriPattern = "seller://profile/{$USER_ID_ARG}"
+            })
         ) {
             ProfileRoute(
                 onOptionSettingsRequest = {

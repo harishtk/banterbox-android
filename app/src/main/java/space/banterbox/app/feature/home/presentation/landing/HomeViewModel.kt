@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -19,12 +20,12 @@ import space.banterbox.app.common.util.loadstate.LoadState
 import space.banterbox.app.common.util.loadstate.LoadStates
 import space.banterbox.app.common.util.loadstate.LoadType
 import space.banterbox.app.common.util.paging.PagedRequest
+import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.home.domain.model.Post
 import space.banterbox.app.feature.home.domain.model.UserSummary
 import space.banterbox.app.feature.home.domain.repository.PostRepository
-import space.banterbox.app.feature.onboard.presentation.login.LoginUiEvent
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -32,6 +33,7 @@ import kotlin.coroutines.cancellation.CancellationException
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val postRepository: PostRepository,
+    private val userDataRepository: UserDataRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -52,6 +54,7 @@ class HomeViewModel @Inject constructor(
     val accept: (HomeUiAction) -> Unit
 
     private var feedFetchJob: Job? = null
+    private var likeJob: Job? = null
 
     init {
         accept = { uiAction -> onUiAction(uiAction) }
@@ -62,12 +65,28 @@ class HomeViewModel @Inject constructor(
             HomeUiAction.Refresh -> {
                 retryInternal(false)
             }
+
+            HomeUiAction.LoadMore -> retryInternal(true)
+
+            is HomeUiAction.LikeToggle -> {
+                likeUnlikePost(uiAction.postId, !(uiAction.liked))
+            }
+
+            is HomeUiAction.NavigateToProfile -> {
+                viewModelScope.launch {
+                    val isSelf = userDataRepository.userData.firstOrNull()
+                        ?.userId == uiAction.userId
+                    sendEvent(HomeUiEvent.NavigateToProfile(uiAction.userId, isSelf))
+                }
+            }
         }
     }
 
     private fun retryInternal(loadMore: Boolean) {
         if (loadMore) {
-            getGlobalFeed(LoadType.APPEND)
+            if (!viewModelState.value.endOfPaginationReached) {
+                getGlobalFeed(LoadType.APPEND)
+            }
         } else {
             getGlobalFeed(LoadType.REFRESH)
         }
@@ -84,7 +103,11 @@ class HomeViewModel @Inject constructor(
 
         val request = PagedRequest.create<Int>(
             loadType,
-            key = viewModelState.value.nextPagingKey ?: 0,
+            key = if (loadType == LoadType.REFRESH) {
+                0
+            } else {
+                viewModelState.value.nextPagingKey ?: 0
+            },
             loadSize = if (loadType == LoadType.REFRESH) {
                 FEED_PAGE_SIZE * 2
             } else {
@@ -108,11 +131,23 @@ class HomeViewModel @Inject constructor(
                     }
                     setLoading(loadType, LoadState.Error(result.exception))
                 }
+
                 is Result.Success -> {
                     viewModelState.update { state ->
+                        val newPosts = if (loadType == LoadType.REFRESH) {
+                            result.data.posts
+                        } else {
+                            result.data.posts + state.posts
+                        }
+                        val newUsers = if (loadType == LoadType.REFRESH) {
+                            result.data.users
+                        } else {
+                            result.data.users + state.users
+                        }
+
                         state.copy(
-                            posts = state.posts + result.data.posts,
-                            users = state.users + result.data.users,
+                            posts = newPosts,
+                            users = newUsers,
                             nextPagingKey = result.data.nextPagingKey,
                             endOfPaginationReached = result.data.nextPagingKey == null,
                             errorMessage = null
@@ -122,6 +157,35 @@ class HomeViewModel @Inject constructor(
                         setLoading(loadType, LoadState.NotLoading.InComplete)
                     } else {
                         setLoading(loadType, LoadState.NotLoading.Complete)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun likeUnlikePost(postId: String, liked: Boolean) {
+        likeJob = viewModelScope.launch {
+            val result = if (liked) {
+                postRepository.likePost(postId)
+            } else {
+                postRepository.unlikePost(postId)
+            }
+            when (result) {
+                Result.Loading -> {}
+                is Result.Error -> {
+                    Timber.e(result.exception)
+                    sendEvent(HomeUiEvent.ShowSnackbar(UiText.somethingWentWrong))
+                }
+                is Result.Success -> {
+                    viewModelState.update { state ->
+                        val newPosts = state.posts.mapNotNull { post ->
+                            if (post.id == postId) {
+                                result.data.posts.firstOrNull()
+                            } else {
+                                post
+                            }
+                        }
+                        state.copy(posts = newPosts)
                     }
                 }
             }
@@ -153,16 +217,23 @@ private data class ViewModelState(
 ) {
     fun toFeedUiState(): FeedUiState {
         if (posts.isNotEmpty()) {
-            return FeedUiState.Success(posts, users)
+            return FeedUiState.Success(
+                posts = posts,
+                users = users,
+                isRefreshing = loadState.refresh is LoadState.Loading,
+                endOfPaginationReached = endOfPaginationReached,
+            )
         } else {
             when (loadState.refresh) {
                 is LoadState.Loading -> {
                     return FeedUiState.Loading
                 }
+
                 is LoadState.Error -> {
                     val message = errorMessage ?: ErrorMessage.unknown()
                     return FeedUiState.Error(message)
                 }
+
                 else -> {
                     return FeedUiState.Idle
                 }
@@ -175,16 +246,25 @@ sealed interface FeedUiState {
     data object Loading : FeedUiState
     data object Idle : FeedUiState
     data class Error(val errorMessage: ErrorMessage) : FeedUiState
-    data class Success(val posts: List<Post>, val users: List<UserSummary>) : FeedUiState
+    data class Success(
+        val posts: List<Post>,
+        val users: List<UserSummary>,
+        val isRefreshing: Boolean = false,
+        val endOfPaginationReached: Boolean = false
+    ) : FeedUiState
 }
 
 sealed interface HomeUiAction {
     data object Refresh : HomeUiAction
+    data object LoadMore : HomeUiAction
+    data class LikeToggle(val postId: String, val liked: Boolean) : HomeUiAction
+    data class NavigateToProfile(val userId: String) : HomeUiAction
 }
 
 sealed interface HomeUiEvent {
     data class ShowToast(val message: UiText) : HomeUiEvent
     data class ShowSnackbar(val message: UiText) : HomeUiEvent
+    data class NavigateToProfile(val userId: String, val isSelf: Boolean) : HomeUiEvent
 }
 
 private const val FEED_PAGE_SIZE = 10

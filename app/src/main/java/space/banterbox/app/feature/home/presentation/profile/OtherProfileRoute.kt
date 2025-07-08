@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,12 +26,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -43,7 +40,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,37 +48,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import space.banterbox.app.ObserverAsEvents
 import space.banterbox.app.R
-import space.banterbox.app.common.util.UiText
 import space.banterbox.app.core.designsystem.shimmerBackground
 import space.banterbox.app.core.util.ErrorMessage
 import space.banterbox.app.feature.home.domain.model.UserProfile
 import space.banterbox.app.showToast
-import space.banterbox.app.ui.cornerSizeMedium
-import space.banterbox.app.ui.insetSmall
-import space.banterbox.app.ui.insetVeryLarge
-import space.banterbox.app.ui.spacerSizeTiny
 import space.banterbox.app.ui.theme.BanterboxTheme
-import space.banterbox.app.ui.theme.TextSecondary
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @Composable
-internal fun ProfileRoute(
+internal fun OtherProfileRoute(
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
     onOptionSettingsRequest: () -> Unit,
@@ -93,12 +80,11 @@ internal fun ProfileRoute(
     val uiState by viewModel.profileUiState.collectAsStateWithLifecycle()
     val uiAction = viewModel.accept
 
-    ProfileScreen(
+    OtherProfileScreen(
         modifier = modifier,
         uiState = uiState,
         uiAction = uiAction,
-        onSettingsClick = onOptionSettingsRequest,
-        snackbarHostState = snackbarHostState,
+        onSettingsClick = onOptionSettingsRequest
     )
 
     ObserverAsEvents(flow = viewModel.uiEvent) { event ->
@@ -114,26 +100,18 @@ internal fun ProfileRoute(
             }
         }
     }
-
-    val errorState by viewModel.errorState.collectAsStateWithLifecycle()
-    LaunchedEffect(errorState) {
-        if (errorState?.message != null) {
-            scope.launch {
-                snackbarHostState.showSnackbar(errorState!!.message!!.asString(context))
-            }
-        }
-    }
 }
 
 
 @Composable
-private fun ProfileScreen(
+private fun OtherProfileScreen(
     modifier: Modifier,
     uiState: ProfileUiState = ProfileUiState.Idle,
     uiAction: (ProfileUiAction) -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
@@ -202,7 +180,7 @@ private fun ProfileScreen(
                     )
                     ProfileUiState.Idle -> Box {}
                     ProfileUiState.Loading -> LoadingScreen()
-                    is ProfileUiState.Success -> ProfileContent(
+                    is ProfileUiState.Success -> OtherProfileContent(
                         profile = uiState.profile,
                         uiAction = uiAction
                     )
@@ -213,7 +191,7 @@ private fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileContent(
+private fun OtherProfileContent(
     modifier: Modifier = Modifier,
     profile: UserProfile,
     uiAction: (ProfileUiAction) -> Unit = {}
@@ -224,7 +202,7 @@ private fun ProfileContent(
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
     ) {
-        // Profile Image, Display Name, Username
+        // OtherProfile Image, Display Name, Username
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -241,7 +219,7 @@ private fun ProfileContent(
                     // In a real app, you'd use a library like Coil or Glide here
                     Image(
                         painter = painterResource(id = R.drawable.ic_launcher_background), // Placeholder
-                        contentDescription = "Profile Image",
+                        contentDescription = "OtherProfile Image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -280,153 +258,23 @@ private fun ProfileContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Posts, Followers, Following counts
+        // Followers and Following
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(
-                onClick = { /* TODO: Navigate to posts screen */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "${profile.postsCount}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(text = "Posts", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            Button(onClick = { /* TODO: Navigate to followers screen */ }) {
+                Text(text = "${profile.followersCount} Followers")
             }
-
-            Button(
-                onClick = { /* TODO: Navigate to followers screen */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "${profile.followersCount}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(text = "Followers", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            Button(onClick = { /* TODO: Navigate to following screen */ }) {
+                Text(text = "${profile.followingCount} Following")
             }
-            Button(
-                onClick = { /* TODO: Navigate to following screen */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "${profile.followingCount}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(text = "Following", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Follow/Unfollow or Edit Profile Button
-        if (!profile.isSelf) {
-            Button(
-                onClick = {
-                    if (profile.isFollowing) {
-                        uiAction(ProfileUiAction.UnfollowUser(profile.id))
-                    } else {
-                        uiAction(ProfileUiAction.FollowUser(profile.id))
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (profile.isFollowing) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
-                    contentColor = if (profile.isFollowing) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(text = if (profile.isFollowing) "Unfollow" else "Follow")
-            }
-        } else {
-            // Optionally, add an "Edit Profile" button for self-profile
-            // Button(onClick = { /* TODO: Navigate to edit profile screen */ }, modifier = Modifier.fillMaxWidth()) {
-            //     Text(text = "Edit Profile")
-            // }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // Placeholder for Posts
         Text(text = "Posts (Coming Soon...)", style = MaterialTheme.typography.titleMedium, modifier = Modifier.align(Alignment.CenterHorizontally))
-    }
-}
-
-@Composable
-fun ColumnScope.FullScreenErrorLayout(
-    modifier: Modifier = Modifier,
-    errorMessage: ErrorMessage,
-    onClick: () -> Unit = {},
-) {
-
-    Column(
-        modifier = modifier
-            .weight(1f),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Oops!",
-            style = MaterialTheme.typography.titleLarge
-                .copy(fontWeight = FontWeight.W600),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = insetSmall, start = insetSmall, end = insetSmall)
-        )
-
-        Text(
-            text = (errorMessage.message ?: UiText.somethingWentWrong).asString(LocalContext.current),
-            style = MaterialTheme.typography.bodyMedium
-                .copy(lineHeight = 22.sp),
-            textAlign = TextAlign.Center,
-            color = TextSecondary,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = insetVeryLarge)
-        )
-
-        Spacer(modifier = Modifier.height(spacerSizeTiny))
-
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .height(40.dp),
-            shape = RoundedCornerShape(cornerSizeMedium),
-            enabled = true,
-            onClick = onClick,
-        ) {
-            Text(
-                text = "Retry",
-                style = MaterialTheme.typography.labelLarge
-                    .copy(fontWeight = FontWeight.SemiBold)
-            )
-        }
-
-        //        val composition by rememberLottieComposition(
-        //            spec = LottieCompositionSpec.RawRes(
-        //                R.raw.papersad
-        //            )
-        //        )
-        //        val progress by animateLottieCompositionAsState(
-        //            composition = composition,
-        //            isPlaying = true,
-        //            iterations = LottieConstants.IterateForever,
-        //        )
-        //        LottieAnimation(
-        //            composition = composition,
-        //            progress = { progress },
-        //            modifier = Modifier
-        //                .fillMaxWidth(0.6F)
-        //                .aspectRatio(1F)
-        //        )
     }
 }
 
@@ -438,7 +286,7 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
     ) {
-        // Profile Image, Display Name, Username (Shimmer)
+        // OtherProfile Image, Display Name, Username (Shimmer)
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -493,10 +341,10 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalTime::class)
 @Preview
 @Composable
-private fun ProfileScreenPreview() {
+private fun OtherProfileScreenPreview() {
     BanterboxTheme {
         Column {
-            ProfileScreen(
+            OtherProfileScreen(
                 modifier = Modifier.fillMaxSize(),
                 uiState = ProfileUiState.Success(
                     profile = UserProfile(
@@ -519,39 +367,10 @@ private fun ProfileScreenPreview() {
         }
     }
 }
-@OptIn(ExperimentalTime::class)
-@Preview
-@Composable
-private fun ProfileScreenSelfPreview() {
-    BanterboxTheme {
-        Column {
-            ProfileScreen(
-                modifier = Modifier.fillMaxSize(),
-                uiState = ProfileUiState.Success(
-                    profile = UserProfile(
-                        id = "dummy-id-self",
-                        username = "myself",
-                        displayName = "My Profile",
-                        bio = "This is my own bio. I can edit this.",
-                        profilePictureId = "",
-                        createdAt = Clock.System.now().toString(),
-                        followersCount = 250,
-                        followingCount = 120,
-                        postsCount = 20,
-                        isFollowing = false,
-                        isSelf = true,
-                    )
-                ),
-                uiAction = {},
-                onSettingsClick = {}
-            )
-        }
-    }
-}
 
 @Preview
 @Composable
-private fun ProfileLoadingPreview() {
+private fun OtherProfileLoadingPreview() {
     BanterboxTheme {
         LoadingScreen(
             modifier = Modifier.fillMaxSize()

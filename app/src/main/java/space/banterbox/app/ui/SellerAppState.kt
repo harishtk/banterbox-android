@@ -133,7 +133,7 @@ class SellerAppState(
 
             when (topLevelDestination) {
                 HOME -> navController.navigateToHome(topLevelNavOptions)
-                PROFILE -> navController.navigateToProfile(topLevelNavOptions)
+                PROFILE -> navController.navigateToProfile(navOptions = topLevelNavOptions)
             }
         }
     }

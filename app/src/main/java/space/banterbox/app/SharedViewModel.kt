@@ -102,6 +102,18 @@ class SharedViewModel @Inject constructor(
         _scrollToTopSignal.update { scrollToTop }
     }
 
+    /* Feed refresh signal */
+    private val _feedRefreshSignal = MutableSharedFlow<Unit>(replay = 0)
+    val feedRefreshSignal = _feedRefreshSignal.asSharedFlow()
+
+    fun setRefreshFeeds(refresh: Boolean) {
+        viewModelScope.launch {
+            if (refresh) {
+                _feedRefreshSignal.emit(Unit)
+            }
+        }
+    }
+
     private val _bottomBarReSelectSignal = MutableSharedFlow<Int>(replay = 0)
     /**
      * Used to get a callback on bottom bar item reselect

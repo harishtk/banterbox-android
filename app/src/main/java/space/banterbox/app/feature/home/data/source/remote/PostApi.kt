@@ -1,11 +1,13 @@
 package space.banterbox.app.feature.home.data.source.remote
 
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import space.banterbox.app.core.domain.model.BaseResponse
 import space.banterbox.app.feature.home.data.source.remote.dto.CreatePostRequestDto
 import space.banterbox.app.feature.home.data.source.remote.model.PostFeedResponse
 import space.banterbox.app.feature.home.data.source.remote.model.SinglePostResponse
@@ -32,7 +34,10 @@ interface PostApi {
     ): Response<PostFeedResponse>
 
     @POST("posts")
-    suspend fun createPost(createPostRequestDto: CreatePostRequestDto): Response<SinglePostResponse>
+    suspend fun createPost(@Body createPostRequestDto: CreatePostRequestDto): Response<SinglePostResponse>
+
+    @DELETE("posts/{postId}")
+    suspend fun deletePost(@Path("postId") postId: String): Response<BaseResponse>
 
     @GET("posts/{postId}")
     suspend fun getPostById(@Path("postId") postId: String): Response<SinglePostResponse>

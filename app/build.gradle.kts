@@ -222,6 +222,7 @@ dependencies {
     implementation(libs.compose.accompainst.themeadaptermaterial)
     implementation(libs.compose.material3)
     implementation(libs.androidx.compose.material3.windowSizeClass)
+    implementation(libs.compose.animation)
     api(libs.androidx.compose.material.iconsExtended)
 
     /* Google */

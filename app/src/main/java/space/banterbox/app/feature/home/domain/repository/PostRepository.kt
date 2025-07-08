@@ -3,6 +3,7 @@ package space.banterbox.app.feature.home.domain.repository
 import space.banterbox.app.common.util.paging.PagedRequest
 import space.banterbox.app.core.util.Result
 import space.banterbox.app.feature.home.domain.model.PostsWithUsers
+import space.banterbox.app.feature.home.domain.model.request.CreatePostRequest
 
 interface PostRepository {
 
@@ -12,7 +13,7 @@ interface PostRepository {
 
     suspend fun getPostsByAuthorId(authorId: String, request: PagedRequest<Int>): Result<PostsWithUsers>
 
-    suspend fun createPost(content: String): Result<PostsWithUsers>
+    suspend fun createPost(request: CreatePostRequest): Result<PostsWithUsers>
 
     suspend fun getPostById(postId: String): Result<PostsWithUsers>
 
