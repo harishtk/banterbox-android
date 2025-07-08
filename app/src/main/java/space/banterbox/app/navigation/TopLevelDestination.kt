@@ -20,6 +20,12 @@ enum class TopLevelDestination(
         iconTextId = R.string.home,
         titleTextId = R.string.home,
     ),
+    SEARCH(
+        selectedIcon = BanterboxSellerIcons.Id_Search_Outline,
+        unselectedIcon = BanterboxSellerIcons.Id_Search_Outline,
+        iconTextId = R.string.search,
+        titleTextId = R.string.search,
+    ),
     PROFILE(
         selectedIcon = BanterboxSellerIcons.Id_Admin_Outline,
         unselectedIcon = BanterboxSellerIcons.Id_Admin_Outline,

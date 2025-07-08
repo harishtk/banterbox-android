@@ -79,6 +79,10 @@ class HomeViewModel @Inject constructor(
                     sendEvent(HomeUiEvent.NavigateToProfile(uiAction.userId, isSelf))
                 }
             }
+
+            is HomeUiAction.NavigateToPost -> {
+                sendEvent(HomeUiEvent.NavigateToPost(uiAction.postId))
+            }
         }
     }
 
@@ -259,12 +263,14 @@ sealed interface HomeUiAction {
     data object LoadMore : HomeUiAction
     data class LikeToggle(val postId: String, val liked: Boolean) : HomeUiAction
     data class NavigateToProfile(val userId: String) : HomeUiAction
+    data class NavigateToPost(val postId: String) : HomeUiAction
 }
 
 sealed interface HomeUiEvent {
     data class ShowToast(val message: UiText) : HomeUiEvent
     data class ShowSnackbar(val message: UiText) : HomeUiEvent
     data class NavigateToProfile(val userId: String, val isSelf: Boolean) : HomeUiEvent
+    data class NavigateToPost(val postId: String) : HomeUiEvent
 }
 
 private const val FEED_PAGE_SIZE = 10

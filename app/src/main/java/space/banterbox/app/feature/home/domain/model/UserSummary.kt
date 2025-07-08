@@ -5,4 +5,5 @@ data class UserSummary(
     val username: String,
     val displayName: String,
     val profilePictureId: String,
+    val isFollowing: Boolean,
 )

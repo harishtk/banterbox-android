@@ -14,31 +14,25 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import space.banterbox.app.bottomBarDestinations
-import space.banterbox.app.core.util.NetworkMonitor
-import space.banterbox.app.feature.home.navigation.adminNavigationRoute
-import space.banterbox.app.feature.home.navigation.createNavigationRoute
-import space.banterbox.app.feature.home.navigation.homeNavigationRoute
-import space.banterbox.app.feature.home.navigation.insightsNavigationRoute
-import space.banterbox.app.feature.home.navigation.inventoryNavigationRoute
-import space.banterbox.app.feature.home.navigation.navigateToAdmin
-import space.banterbox.app.feature.home.navigation.navigateToCreate
-import space.banterbox.app.feature.home.navigation.navigateToHome
-import space.banterbox.app.feature.home.navigation.navigateToInsights
-import space.banterbox.app.feature.home.navigation.navigateToInventory
-import space.banterbox.app.feature.home.navigation.navigateToSampleScreen
-import space.banterbox.app.feature.home.navigation.navigateToSettings
-import space.banterbox.app.navigation.NavigationDrawerDestination
-import space.banterbox.app.navigation.NavigationDrawerDestination.*
-import space.banterbox.app.navigation.TopLevelDestination
-import space.banterbox.app.navigation.TopLevelDestination.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import space.banterbox.app.bottomBarDestinations
+import space.banterbox.app.core.util.NetworkMonitor
+import space.banterbox.app.feature.home.navigation.homeNavigationRoute
+import space.banterbox.app.feature.home.navigation.navigateToHome
 import space.banterbox.app.feature.home.navigation.navigateToProfile
+import space.banterbox.app.feature.home.navigation.navigateToSampleScreen
+import space.banterbox.app.feature.home.navigation.navigateToSearch
+import space.banterbox.app.feature.home.navigation.navigateToSettings
 import space.banterbox.app.feature.home.navigation.profileNavigationRoute
-import space.banterbox.app.feature.home.navigation.settingsNavigationRoute
+import space.banterbox.app.navigation.NavigationDrawerDestination
+import space.banterbox.app.navigation.NavigationDrawerDestination.Settings
+import space.banterbox.app.navigation.NavigationDrawerDestination.Support
+import space.banterbox.app.navigation.TopLevelDestination
+import space.banterbox.app.navigation.TopLevelDestination.HOME
+import space.banterbox.app.navigation.TopLevelDestination.PROFILE
 import timber.log.Timber
 
 @Composable
@@ -47,7 +41,7 @@ fun rememberSellerAppState(
     networkMonitor: NetworkMonitor,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberNavController(),
-): SellerAppState {
+): BanterboxAppState {
     NavigationTrackingSideEffect(navController)
     return remember(
         navController,
@@ -55,7 +49,7 @@ fun rememberSellerAppState(
         windowSizeClass,
         networkMonitor,
     ) {
-        SellerAppState(
+        BanterboxAppState(
             navController,
             coroutineScope,
             windowSizeClass,
@@ -65,7 +59,7 @@ fun rememberSellerAppState(
 }
 
 @Stable
-class SellerAppState(
+class BanterboxAppState(
     val navController: NavHostController,
     val coroutineScope: CoroutineScope,
     val windowSizeClass: WindowSizeClass,
@@ -102,7 +96,7 @@ class SellerAppState(
      * Map of top level destinations to be used in the TopBar, BotttomBar and NavRail. The key is the
      * route.
      */
-    val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.values().asList()
+    val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
 
     /**
      * Map of navigation drawer destinations to be used in the Navigation Drawer. The key is the
@@ -133,6 +127,7 @@ class SellerAppState(
 
             when (topLevelDestination) {
                 HOME -> navController.navigateToHome(topLevelNavOptions)
+                TopLevelDestination.SEARCH -> navController.navigateToSearch(topLevelNavOptions)
                 PROFILE -> navController.navigateToProfile(navOptions = topLevelNavOptions)
             }
         }

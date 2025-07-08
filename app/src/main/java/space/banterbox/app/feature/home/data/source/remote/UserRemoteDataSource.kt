@@ -2,7 +2,6 @@ package space.banterbox.app.feature.home.data.source.remote
 
 import com.google.gson.Gson
 import okhttp3.Call
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -53,4 +52,17 @@ class UserRemoteDataSource @Inject constructor(
     suspend fun getFollowers(page: Int, pageSize: Int): NetworkResult<GetUsersResponse> =
         safeApiCall { userApi.getFollowers(page, pageSize) }
 
+    suspend fun getFollowing(
+        userId: String,
+        page: Int,
+        pageSize: Int
+    ): NetworkResult<GetUsersResponse> =
+        safeApiCall { userApi.getFollowing(userId, page, pageSize) }
+
+    suspend fun getFollowers(
+        userId: String,
+        page: Int,
+        pageSize: Int
+    ): NetworkResult<GetUsersResponse> =
+        safeApiCall { userApi.getFollowers(userId, page, pageSize) }
 }

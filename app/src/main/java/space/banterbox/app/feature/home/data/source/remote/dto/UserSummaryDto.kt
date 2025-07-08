@@ -12,6 +12,8 @@ data class UserSummaryDto(
     val displayName: String,
     @SerializedName("profilePictureId")
     val profilePictureId: String?,
+    @SerializedName("isFollowing")
+    val isFollowing: Boolean?,
 )
 
 fun UserSummaryDto.toUserSummary(): UserSummary {
@@ -20,5 +22,6 @@ fun UserSummaryDto.toUserSummary(): UserSummary {
         username = username,
         displayName = displayName,
         profilePictureId = profilePictureId ?: "",
+        isFollowing = isFollowing ?: false,
     )
 }

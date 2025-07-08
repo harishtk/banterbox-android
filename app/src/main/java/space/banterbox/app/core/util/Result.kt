@@ -1,6 +1,9 @@
 package space.banterbox.app.core.util
 
 import kotlinx.coroutines.flow.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * A generic class that holds data and it's state
@@ -37,4 +40,20 @@ fun <T> Flow<T>.asResult(): Flow<Result<T>> {
         }
         .onStart { emit(Result.Loading) }
         .catch { emit(Result.Error(it as Exception)) }
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <R> Result<R>.fold(
+    onSuccess: (value: R) -> Unit,
+    onFailure: (exception: Throwable) -> Unit
+) {
+    contract {
+        callsInPlace(onSuccess, InvocationKind.AT_MOST_ONCE)
+        callsInPlace(onFailure, InvocationKind.AT_MOST_ONCE)
+    }
+    when (this) {
+        is Result.Success -> onSuccess(data)
+        is Result.Error -> onFailure(exception)
+        Result.Loading -> {}
+    }
 }

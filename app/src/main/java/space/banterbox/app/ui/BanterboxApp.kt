@@ -1,6 +1,5 @@
 package space.banterbox.app.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
@@ -21,13 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -36,31 +31,21 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -69,11 +54,9 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import space.banterbox.app.R
 import space.banterbox.app.SharedViewModel
 import space.banterbox.app.core.designsystem.LocalWindowSizeClass
-import space.banterbox.app.core.designsystem.BanterboxSellerIcons
 import space.banterbox.app.core.designsystem.component.DefaultNavigationDrawer
 import space.banterbox.app.core.designsystem.component.BanterboxBackground
 import space.banterbox.app.core.designsystem.component.BanterboxGradientBackground
-import space.banterbox.app.core.designsystem.component.BanterboxTopAppBar
 import space.banterbox.app.core.domain.model.ShopData
 import space.banterbox.app.core.util.NetworkMonitor
 import space.banterbox.app.navigation.NavigationDrawerDestination
@@ -81,9 +64,7 @@ import space.banterbox.app.navigation.BanterboxNavHost
 import space.banterbox.app.navigation.TopLevelDestination
 import space.banterbox.app.ui.theme.GradientColors
 import space.banterbox.app.ui.theme.LocalGradientColors
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.math.abs
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -95,7 +76,7 @@ fun BanterboxApp(
     windowSizeClass: WindowSizeClass,
     networkMonitor: NetworkMonitor,
     sharedViewModel: SharedViewModel,
-    appState: SellerAppState = rememberSellerAppState(
+    appState: BanterboxAppState = rememberSellerAppState(
         windowSizeClass = windowSizeClass,
         networkMonitor = networkMonitor,
     ),

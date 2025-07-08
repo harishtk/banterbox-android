@@ -48,13 +48,25 @@ class NetworkOnlyUserRepository @Inject constructor(
     override suspend fun getFollowing(request: GetUsersRequest): Result<PagedData<Int, UserSummary>> {
         val page = request.pagedRequest.key ?: 0
         val pageSize = request.pagedRequest.loadSize
-        return parseUserPreviewPagedResult(remoteDataSource.getFollowing(page, pageSize))
+        return parseUserPreviewPagedResult(
+            if (request.otherUserId != null) {
+                remoteDataSource.getFollowing(request.otherUserId, page, pageSize)
+            } else {
+                remoteDataSource.getFollowing(page, pageSize)
+            }
+        )
     }
 
     override suspend fun getFollowers(request: GetUsersRequest): Result<PagedData<Int, UserSummary>> {
         val page = request.pagedRequest.key ?: 0
         val pageSize = request.pagedRequest.loadSize
-        return parseUserPreviewPagedResult(remoteDataSource.getFollowers(page, pageSize))
+        return parseUserPreviewPagedResult(
+            if (request.otherUserId != null) {
+                remoteDataSource.getFollowers(request.otherUserId, page, pageSize)
+            } else {
+                remoteDataSource.getFollowers(page, pageSize)
+            }
+        )
     }
 
     private fun parseUserProfileResponse(networkResult: NetworkResult<UserProfileResponse>): Result<UserProfile> {

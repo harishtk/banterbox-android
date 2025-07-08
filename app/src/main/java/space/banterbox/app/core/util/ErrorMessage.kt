@@ -8,6 +8,12 @@ data class ErrorMessage(
     val message: UiText?
 ) {
     companion object {
+        fun from(t: Throwable) = ErrorMessage(
+            id = 0,
+            exception = t,
+            message = UiText.somethingWentWrong
+        )
+
         fun unknown() = ErrorMessage(
             id = 0,
             exception = null,

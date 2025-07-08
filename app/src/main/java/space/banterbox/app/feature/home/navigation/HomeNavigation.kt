@@ -17,13 +17,12 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import space.banterbox.app.Constant
 import space.banterbox.app.SharedViewModel
-import space.banterbox.app.feature.home.presentation.admin.AdminRoute
 import space.banterbox.app.feature.home.presentation.create.CreateRoute
 import space.banterbox.app.feature.home.presentation.create.WritePostRoute
-import space.banterbox.app.feature.home.presentation.insights.InsightsRoute
-import space.banterbox.app.feature.home.presentation.inventory.InventoryRoute
 import space.banterbox.app.feature.home.presentation.landing.HomeRoute
+import space.banterbox.app.feature.home.presentation.post.PostDetailRoute
 import space.banterbox.app.feature.home.presentation.profile.ProfileRoute
+import space.banterbox.app.feature.home.presentation.search.SearchRoute
 import space.banterbox.app.feature.home.presentation.settings.SettingsRoute
 import space.banterbox.app.feature.home.presentation.webview.WebPageRoute
 import space.banterbox.app.sharedViewModel
@@ -31,18 +30,18 @@ import space.banterbox.app.sharedViewModel
 const val HOME_GRAPH_ROUTE_PATTERN = "home_graph"
 const val SETTINGS_GRAPH_ROUTE_PATTERN = "settings_graph"
 const val PROFILE_GRAPH_ROUTE_PATTERN = "profile_graph"
+const val SEARCH_GRAPH_ROUTE_PATTERN = "search_graph"
 
 const val FIRST_LOG_IN = "firstLogin"
 
 const val homeNavigationRoute = "home_route?${FIRST_LOG_IN}={${FIRST_LOG_IN}}"
-const val insightsNavigationRoute = "insights_route"
-const val insightsOverviewNavigationRoute = "insights_overview_route"
 const val createNavigationRoute = "create_route"
-const val inventoryNavigationRoute = "inventory_route"
-const val adminNavigationRoute = "admin_route"
 const val USER_ID_ARG = "userId"
 const val profileNavigationRoute = "profile_route/{$USER_ID_ARG}"
-const val writePostRoute = "write_post_route"
+const val writePostNavigationRoute = "write_post_route"
+const val POST_ID_ARG = "postId"
+const val postDetailNavigationRoute = "post_detail_route/{$POST_ID_ARG}"
+const val searchNavigationRoute = "search_route"
 
 const val webPageNavigationRoute = "web_page_route?url={url}"
 const val settingsNavigationRoute = "settings_route"
@@ -66,20 +65,20 @@ fun NavController.navigateToProfile(
     )
 }
 
-fun NavController.navigateToInsights(navOptions: NavOptions? = null) {
-    this.navigate(insightsNavigationRoute, navOptions)
+fun NavController.navigateToPostDetail(
+    postId: String,
+    navOptions: NavOptions? = null
+) {
+    this.navigate(
+        postDetailNavigationRoute.replace("{$POST_ID_ARG}", postId),
+        navOptions
+    )
 }
 
-fun NavController.navigateToCreate(navOptions: NavOptions? = null) {
-    this.navigate(createNavigationRoute, navOptions)
-}
-
-fun NavController.navigateToInventory(navOptions: NavOptions? = null) {
-    this.navigate(inventoryNavigationRoute, navOptions)
-}
-
-fun NavController.navigateToAdmin(navOptions: NavOptions? = null) {
-    this.navigate(adminNavigationRoute, navOptions)
+fun NavController.navigateToSearch(
+    navOptions: NavOptions? = null
+) {
+    this.navigate(searchNavigationRoute, navOptions)
 }
 
 fun NavController.navigateToWebPage(url: String, navOptions: NavOptions? = null) {
@@ -103,7 +102,7 @@ fun NavController.navigateToProfileGraph(navOptions: NavOptions? = null) {
 }
 
 fun NavController.navigateToWritePost(navOptions: NavOptions? = null) {
-    this.navigate(writePostRoute, navOptions)
+    this.navigate(writePostNavigationRoute, navOptions)
 }
 
 fun NavGraphBuilder.homeScreen(
@@ -126,16 +125,11 @@ fun NavGraphBuilder.homeScreen(
             },
             onNavigateToProfile = { userId ->
                 navController.navigateToProfile(userId)
+            },
+            onNavigateToPost = { postId ->
+                navController.navigateToPostDetail(postId)
             }
         )
-    }
-}
-
-fun NavGraphBuilder.insightsScreen() {
-    composable(
-        route = insightsNavigationRoute,
-    ) {
-        InsightsRoute()
     }
 }
 
@@ -151,29 +145,13 @@ fun NavGraphBuilder.writePostScreen(
     navController: NavHostController
 ) {
     composable(
-        route = writePostRoute,
+        route = writePostNavigationRoute,
     ) {
         val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
         WritePostRoute(
             sharedViewModel = sharedViewModel,
             onNavUp = { navController.popBackStack() }
         )
-    }
-}
-
-fun NavGraphBuilder.inventoryScreen() {
-    composable(
-        route = inventoryNavigationRoute,
-    ) {
-        InventoryRoute()
-    }
-}
-
-fun NavGraphBuilder.adminScreen() {
-    composable(
-        route = adminNavigationRoute,
-    ) {
-        AdminRoute()
     }
 }
 
@@ -230,11 +208,14 @@ fun NavGraphBuilder.homeGraph(
                 },
                 onNavigateToProfile = { userId ->
                     navController.navigateToProfile(userId)
+                },
+                onNavigateToPost = { postId ->
+                    navController.navigateToPostDetail(postId)
                 }
             )
         }
         composable(
-            route = writePostRoute,
+            route = writePostNavigationRoute,
             /* TODO: add deep links and other args here */
         ) {
             val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
@@ -245,15 +226,17 @@ fun NavGraphBuilder.homeGraph(
         }
 
         composable(
-            route = inventoryNavigationRoute,
-        ) {
-            InventoryRoute()
-        }
-        composable(
-            route = adminNavigationRoute,
+            route = postDetailNavigationRoute,
             /* TODO: add deep links and other args here */
         ) {
-            AdminRoute()
+            val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+            PostDetailRoute(
+                sharedViewModel = sharedViewModel,
+                onNavUp = { navController.popBackStack() },
+                onNavigateToProfile = { userId ->
+                    navController.navigateToProfile(userId)
+                }
+            )
         }
         nestedGraphs()
     }
@@ -289,22 +272,33 @@ fun NavGraphBuilder.profileGraph(
     }
 }
 
-fun NavGraphBuilder.insightsGraph(
-    startDestination: String = insightsOverviewNavigationRoute,
-    navController: NavController,
+fun NavGraphBuilder.searchGraph(
+    startDestination: String = searchNavigationRoute,
+    navController: NavHostController,
     onBackClick: () -> Unit,
     nestedGraphs: NavGraphBuilder.() -> Unit = {},
 ) {
     navigation(
-        route = insightsNavigationRoute,
+        route = SEARCH_GRAPH_ROUTE_PATTERN,
         startDestination = startDestination,
     ) {
         composable(
-            route = insightsOverviewNavigationRoute,
-            deepLinks = listOf(navDeepLink { uriPattern = "seller://insights" })
+            route = searchNavigationRoute,
         ) {
-            InsightsRoute()
+            val sharedViewModel = it.sharedViewModel<SharedViewModel>(navController)
+            SearchRoute(
+                sharedViewModel = sharedViewModel,
+                onNavUp = onBackClick,
+                onNavigateToProfile = { userId ->
+                    navController.navigateToProfile(userId)
+                },
+                onNavigateToPostDetail = { postId ->
+                    navController.navigateToPostDetail(postId)
+                }
+            )
         }
+
+        nestedGraphs()
     }
 }
 

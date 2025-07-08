@@ -2,12 +2,9 @@
 
 package space.banterbox.app.feature.home.presentation.landing
 
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -62,11 +59,8 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,18 +69,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import space.banterbox.app.ObserverAsEvents
-import space.banterbox.app.R
 import space.banterbox.app.SharedViewModel
 import space.banterbox.app.feature.home.domain.model.Post
 import space.banterbox.app.feature.home.domain.model.UserSummary
 import space.banterbox.app.feature.home.presentation.profile.FullScreenErrorLayout
 import space.banterbox.app.ui.spacerSizeTiny
-import space.banterbox.app.ui.theme.Amber10
-import space.banterbox.app.ui.theme.Amber90
 import space.banterbox.app.ui.theme.BanterboxTheme
-import space.banterbox.app.ui.theme.Red30
 import space.banterbox.app.ui.theme.Red50
-import timber.log.Timber
 
 @Composable
 internal fun HomeRoute(
@@ -95,6 +84,7 @@ internal fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onWritePostRequest: () -> Unit,
     onNavigateToProfile: (String) -> Unit,
+    onNavigateToPost: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -120,6 +110,9 @@ internal fun HomeRoute(
                 onNavigateToProfile(
                     if (it.isSelf) "" else it.userId
                 )
+            }
+            is HomeUiEvent.NavigateToPost -> {
+                onNavigateToPost(it.postId)
             }
             is HomeUiEvent.ShowSnackbar -> {
                 scope.launch {
@@ -268,6 +261,9 @@ private fun FeedContent(
                     },
                     onUserProfileClick = {
                         uiAction(HomeUiAction.NavigateToProfile(author.id))
+                    },
+                    onPostClick = {
+                        uiAction(HomeUiAction.NavigateToPost(post.id))
                     }
                 )
             }
@@ -281,6 +277,7 @@ private fun PostCard(
     modifier: Modifier = Modifier,
     post: Post,
     author: UserSummary,
+    onPostClick: () -> Unit = {},
     onLikeToggle: (Boolean) -> Unit = {},
     onUserProfileClick: () -> Unit = {},
 ) {
@@ -317,6 +314,7 @@ private fun PostCard(
                 text = post.content,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(vertical = 16.dp)
+                    .clickable(onClick = onPostClick)
             )
 
             // Actions (e.g., Like button) - Simplified
@@ -338,7 +336,7 @@ private fun PostCard(
 }
 
 @Composable
-private fun UserAvatar(
+fun UserAvatar(
     modifier: Modifier = Modifier,
     profile: UserSummary,
 ) {
@@ -416,7 +414,8 @@ private fun HomeDefaultPreview() {
                             id = "1",
                             username = "john_doe",
                             displayName = "John Doe",
-                            profilePictureId = ""
+                            profilePictureId = "",
+                            isFollowing = false,
                         )
                     )
                 )
@@ -443,7 +442,8 @@ private fun FeedContentPreview() {
                 id = "1",
                 username = "john_doe",
                 displayName = "John Doe",
-                profilePictureId = ""
+                profilePictureId = "",
+                isFollowing = false,
             )
         )
     }

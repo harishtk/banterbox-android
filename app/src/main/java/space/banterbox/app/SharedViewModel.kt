@@ -18,13 +18,10 @@ import kotlinx.coroutines.launch
 import space.banterbox.app.core.domain.repository.UserDataRepository
 import space.banterbox.app.core.domain.usecase.UserAuthStateUseCase
 import space.banterbox.app.core.util.NetworkMonitor
-import space.banterbox.app.feature.home.navigation.adminNavigationRoute
 import space.banterbox.app.feature.home.navigation.createNavigationRoute
 import space.banterbox.app.feature.home.navigation.homeNavigationRoute
-import space.banterbox.app.feature.home.navigation.insightsNavigationRoute
-import space.banterbox.app.feature.home.navigation.insightsOverviewNavigationRoute
-import space.banterbox.app.feature.home.navigation.inventoryNavigationRoute
 import space.banterbox.app.feature.home.navigation.profileNavigationRoute
+import space.banterbox.app.feature.home.navigation.searchNavigationRoute
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -130,11 +127,8 @@ val bottomBarDestinations: List<String> =
     listOf(
         homeNavigationRoute,
         profileNavigationRoute,
-        insightsNavigationRoute,
-        insightsOverviewNavigationRoute,
         createNavigationRoute,
-        inventoryNavigationRoute,
-        adminNavigationRoute,
+        searchNavigationRoute,
     )
 
 val onboardDestinations: List<Int> = listOf()

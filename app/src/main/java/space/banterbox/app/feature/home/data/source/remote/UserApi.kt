@@ -41,4 +41,18 @@ interface UserApi {
         @Query("size") pageSize: Int
     ): Response<GetUsersResponse>
 
+    @GET("users/{userId}/following?page={page}&pageSize={pageSize}")
+    suspend fun getFollowing(
+        @Path("userId") userId: String,
+        @Query("page") page: Int,
+        @Query("size") pageSize: Int
+    ): Response<GetUsersResponse>
+
+    @GET("users/{userId}/followers?page={page}&pageSize={pageSize}")
+    suspend fun getFollowers(
+        @Path("userId") userId: String,
+        @Query("page") page: Int,
+        @Query("size") pageSize: Int
+    ): Response<GetUsersResponse>
+
 }

@@ -5,14 +5,11 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -23,21 +20,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import space.banterbox.app.feature.home.navigation.HOME_GRAPH_ROUTE_PATTERN
 import space.banterbox.app.feature.home.navigation.homeGraph
-import space.banterbox.app.feature.home.navigation.insightsGraph
 import space.banterbox.app.feature.home.navigation.navigateToWebPage
 import space.banterbox.app.feature.home.navigation.profileGraph
+import space.banterbox.app.feature.home.navigation.searchGraph
 import space.banterbox.app.feature.home.navigation.settingsGraph
 import space.banterbox.app.feature.home.navigation.webPageNavigationRoute
 import space.banterbox.app.feature.home.navigation.webPageScreen
 import space.banterbox.app.feature.home.presentation.miscellaneous.SampleRoute
 import space.banterbox.app.feature.onboard.navigation.authGraph
 import space.banterbox.app.feature.onboard.navigation.onboardGraph
-import space.banterbox.app.ui.SellerAppState
+import space.banterbox.app.ui.BanterboxAppState
 import timber.log.Timber
 
 @Composable
 fun BanterboxNavHost(
-    appState: SellerAppState,
+    appState: BanterboxAppState,
     onShowSnackBar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
     startGraph: String = HOME_GRAPH_ROUTE_PATTERN,
@@ -79,10 +76,10 @@ fun BanterboxNavHost(
             onBackClick = navController::popBackStack,
         ) {}
 
-        insightsGraph(
+        searchGraph(
             navController = navController,
-            onBackClick = navController::popBackStack
-        )
+            onBackClick = navController::popBackStack,
+        ) {}
 
         authGraph(
             navController = navController,
