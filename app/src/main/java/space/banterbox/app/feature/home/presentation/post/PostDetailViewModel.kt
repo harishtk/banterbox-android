@@ -102,9 +102,9 @@ class PostDetailViewModel @Inject constructor(
 
     private fun likeToggle(postId: String, liked: Boolean) = viewModelScope.launch {
         val result = if (liked) {
-            postRepository.likePost(postId)
-        } else {
             postRepository.unlikePost(postId)
+        } else {
+            postRepository.likePost(postId)
         }
         result.fold(
             onFailure = { exception ->

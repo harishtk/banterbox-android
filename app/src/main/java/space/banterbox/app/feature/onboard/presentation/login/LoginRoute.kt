@@ -137,6 +137,7 @@ import space.banterbox.app.ui.theme.BanterboxTheme
 import space.banterbox.app.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import space.banterbox.app.BuildConfig
 import space.banterbox.app.core.designsystem.component.text.PasswordFieldState
 import space.banterbox.app.core.designsystem.component.forms.UsernameFieldState
 import space.banterbox.app.core.designsystem.component.forms.UsernameFieldStateSaver
@@ -238,6 +239,11 @@ internal fun LoginRoute(
         }
     }*/
 
+    if (BuildConfig.DEBUG) {
+        LaunchedEffect(key1 = Unit) {
+            uiAction(LoginUiAction.TypingPassword("pass123"))
+        }
+    }
 }
 
 @OptIn(

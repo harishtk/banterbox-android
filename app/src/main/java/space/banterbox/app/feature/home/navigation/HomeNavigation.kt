@@ -20,6 +20,7 @@ import space.banterbox.app.SharedViewModel
 import space.banterbox.app.feature.home.presentation.create.CreateRoute
 import space.banterbox.app.feature.home.presentation.create.WritePostRoute
 import space.banterbox.app.feature.home.presentation.landing.HomeRoute
+import space.banterbox.app.feature.home.presentation.notification.NotificationRoute
 import space.banterbox.app.feature.home.presentation.post.PostDetailRoute
 import space.banterbox.app.feature.home.presentation.profile.ProfileRoute
 import space.banterbox.app.feature.home.presentation.search.SearchRoute
@@ -42,6 +43,7 @@ const val writePostNavigationRoute = "write_post_route"
 const val POST_ID_ARG = "postId"
 const val postDetailNavigationRoute = "post_detail_route/{$POST_ID_ARG}"
 const val searchNavigationRoute = "search_route"
+const val notificationsNavigationRoute = "notification_route"
 
 const val webPageNavigationRoute = "web_page_route?url={url}"
 const val settingsNavigationRoute = "settings_route"
@@ -79,6 +81,12 @@ fun NavController.navigateToSearch(
     navOptions: NavOptions? = null
 ) {
     this.navigate(searchNavigationRoute, navOptions)
+}
+
+fun NavController.navigateToNotifications(
+    navOptions: NavOptions? = null
+) {
+    this.navigate(notificationsNavigationRoute, navOptions)
 }
 
 fun NavController.navigateToWebPage(url: String, navOptions: NavOptions? = null) {
@@ -128,6 +136,9 @@ fun NavGraphBuilder.homeScreen(
             },
             onNavigateToPost = { postId ->
                 navController.navigateToPostDetail(postId)
+            },
+            onNavigateToNotifications = {
+                navController.navigateToNotifications()
             }
         )
     }
@@ -211,6 +222,9 @@ fun NavGraphBuilder.homeGraph(
                 },
                 onNavigateToPost = { postId ->
                     navController.navigateToPostDetail(postId)
+                },
+                onNavigateToNotifications = {
+                    navController.navigateToNotifications()
                 }
             )
         }
@@ -237,6 +251,22 @@ fun NavGraphBuilder.homeGraph(
                     navController.navigateToProfile(userId)
                 }
             )
+        }
+
+        composable(
+            route = notificationsNavigationRoute,
+            /* TODO: add deep links and other args here */
+        ) {
+            NotificationRoute(
+                onNavigateToPost = { postId ->
+                    navController.navigateToPostDetail(postId)
+                },
+                onNavigateToProfile = { userId ->
+                    navController.navigateToProfile(userId)
+                },
+                onNavUp = { navController.popBackStack() },
+            )
+
         }
         nestedGraphs()
     }

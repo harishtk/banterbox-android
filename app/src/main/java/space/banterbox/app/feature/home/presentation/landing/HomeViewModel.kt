@@ -105,19 +105,19 @@ class HomeViewModel @Inject constructor(
         feedFetchJob?.cancel(CancellationException("New request"))
         setLoading(loadType, LoadState.Loading())
 
-        val request = PagedRequest.create<Int>(
-            loadType,
-            key = if (loadType == LoadType.REFRESH) {
-                0
-            } else {
-                viewModelState.value.nextPagingKey ?: 0
-            },
-            loadSize = if (loadType == LoadType.REFRESH) {
-                FEED_PAGE_SIZE * 2
-            } else {
-                FEED_PAGE_SIZE
-            }
-        )
+            val request = PagedRequest.create<Int>(
+                loadType,
+                key = if (loadType == LoadType.REFRESH) {
+                    0
+                } else {
+                    viewModelState.value.nextPagingKey ?: 0
+                },
+                loadSize = if (loadType == LoadType.REFRESH) {
+                    FEED_PAGE_SIZE * 2
+                } else {
+                    FEED_PAGE_SIZE
+                }
+            )
 
         feedFetchJob = viewModelScope.launch {
             when (val result = postRepository.globalFeed(request)) {

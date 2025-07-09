@@ -3,6 +3,7 @@ package space.banterbox.app.core.domain.model
 import space.banterbox.app.core.data.source.local.entity.NotificationEntity
 import space.banterbox.app.toInt
 
+@Deprecated("not in use")
 data class BanterboxNotification(
     val content: String,
     val timestamp: String,

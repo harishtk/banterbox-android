@@ -31,9 +31,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +87,7 @@ internal fun HomeRoute(
     onWritePostRequest: () -> Unit,
     onNavigateToProfile: (String) -> Unit,
     onNavigateToPost: (String) -> Unit,
+    onNavigateToNotifications: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -97,6 +100,7 @@ internal fun HomeRoute(
         snackbarHostState = snackbarHostState,
         uiAction = viewModel.accept,
         onWritePostRequest = onWritePostRequest,
+        onNavigateToNotifications = onNavigateToNotifications
     )
 
     // FIXME: View model is recreating everytime
@@ -132,7 +136,8 @@ internal fun HomeScreen(
     feedUiState: FeedUiState = FeedUiState.Idle,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     uiAction: (HomeUiAction) -> Unit = {},
-    onWritePostRequest: () -> Unit = {}
+    onWritePostRequest: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
 ) {
 
     // This code should be called when UI is ready for use and relates to Time To Full Display.
@@ -149,7 +154,30 @@ internal fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Hoots", style = MaterialTheme.typography.titleLarge) },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    IconButton(
+                        onClick = onNavigateToNotifications
+                    ) {
+                        Box {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Circle,
+                                contentDescription = "Unread",
+                                tint = Color.Red,
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .align(Alignment.TopEnd)
+                                    .background(MaterialTheme.colorScheme.surface, CircleShape)
+                                    .padding(2.dp)
+                            )
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -313,7 +341,8 @@ private fun PostCard(
             Text(
                 text = post.content,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(vertical = 16.dp)
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
                     .clickable(onClick = onPostClick)
             )
 
